@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Cryptr from "cryptr";
 import { NextFunction, Request, Response } from "express";
 import { getCookie } from "../utils/cookie";
@@ -71,6 +72,39 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
       }
       next();
     }
+=======
+import { NextFunction, Request, Response } from "express";
+import { User } from "../entity/User";
+import { verifyAccessToken } from "../utils/jwt";
+
+const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers["x-access-token"];
+  console.log(token);
+  if (!token) {
+    return res.status(401).json({
+      error: "No token provided."
+    });
+  }
+
+  if (typeof token === "string") {
+    const userID = await verifyAccessToken(token);
+    console.log(userID);
+    if (!userID || typeof userID !== "string") {
+      return res.status(401).json({
+        error: "Invalid token."
+      });
+    }
+    const user = await User.findOne({ id: userID });
+
+    if (!user) {
+      return res.status(401).json({
+        error: "User does not exist."
+      });
+    }
+
+    console.log(user);
+    next();
+>>>>>>> 060e48e (initial commit)
   }
 };
 

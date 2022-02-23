@@ -4,5 +4,9 @@ node_modules/
 build/
 tmp/
 temp/
+<<<<<<< HEAD
 drive/
 prisma/migrations
+=======
+drive/
+>>>>>>> 060e48e (initial commit)
