@@ -19,10 +19,13 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   const logout = async () => {
     try {
+<<<<<<< HEAD
       setLoading(true);
       await auth.logout();
       setUser(null);
       setLoading(false);
+=======
+>>>>>>> 25379cf (starting to build frontend)
     } catch (error) {}
   };
 

@@ -18,4 +18,7 @@ export class Post extends BaseEntity {
 
   @Column({ type: "varchar", length: 255, nullable: false })
   ownerId: string;
+
+  @Column({ type: "varchar", length: 255, nullable: true, array: true })
+  viewers: string[];
 }

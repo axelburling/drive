@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useRouter } from "next/router";
 import React, { useContext, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
@@ -18,6 +19,12 @@ const ProtectedRoute = ({ children }: { children: any }) => {
   }, []);
 
   return <>{children}</>;
+=======
+import React from "react";
+
+const ProtectedRoute = () => {
+  return <div>ProtectedRoute</div>;
+>>>>>>> 25379cf (starting to build frontend)
 };
 
 export default ProtectedRoute;

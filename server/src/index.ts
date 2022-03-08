@@ -1,12 +1,8 @@
-<<<<<<< HEAD
 import cookieParser from "cookie-parser";
-=======
->>>>>>> 060e48e (initial commit)
 import cors from "cors";
 import { config } from "dotenv";
 import express from "express";
 import fileUpload from "express-fileupload";
-<<<<<<< HEAD
 import { createServer } from "http";
 import morgan from "morgan";
 import "reflect-metadata";
@@ -63,44 +59,3 @@ const port = process.env.SERVER_PORT || 3000;
 server.listen(port, () =>
   console.log(`Server is running on  http://localhost:${port}`)
 );
-=======
-import morgan from "morgan";
-import "reflect-metadata";
-import { createConnection } from "typeorm";
-import auth from "./routes/auth";
-import posts from "./routes/posts";
-
-config();
-
-// interface Body {
-//   error: boolean;
-//   message: string;
-//   [key: string]: string | boolean;
-// }
-
-createConnection()
-  .then(async (connection) => {
-    // create express app
-    const app = express();
-    app.use(express.json());
-    app.use(cors());
-    app.use(morgan("dev"));
-    app.use(
-      fileUpload({
-        limits: { fileSize: 50 * 1024 * 1024 },
-        abortOnLimit: true,
-        responseOnLimit: "File is too large"
-      })
-    );
-
-    app.use("/api/auth", auth);
-    app.use("/api/posts", posts);
-
-    const port = process.env.SERVER_PORT || 3000;
-
-    app.listen(port, () =>
-      console.log(`Server is running on  http://localhost:${port}`)
-    );
-  })
-  .catch((error) => console.log(error));
->>>>>>> 060e48e (initial commit)

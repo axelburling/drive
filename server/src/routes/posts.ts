@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import Cryptr from "cryptr";
 import { Router } from "express";
 import fs from "fs";
@@ -31,41 +30,16 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     ) {
       console.log("No token provided.");
       return res.json({
-=======
-import { Router } from "express";
-import * as path from "path";
-import { Post } from "../entity/Post";
-import isLoggedIn from "../middleware/login";
-import { verifyAccessToken } from "../utils/jwt";
-
-const router = Router();
-
-router.post("/upload", isLoggedIn, async (req, res) => {
-  try {
-    const token = req.headers["x-access-token"];
-
-    if (!token) {
-      return res.status(401).json({
->>>>>>> 060e48e (initial commit)
         error: "No token provided."
       });
     }
 
-<<<<<<< HEAD
     if (clientid) {
       id = cryptr.decrypt(clientid);
       console.log(id);
     } else {
       id = (await verifyAccessToken(token)) as string;
     }
-=======
-    if (typeof token !== "string") {
-      return res.status(401).json({
-        error: "Invalid token."
-      });
-    }
-    const id = (await verifyAccessToken(token)) as string;
->>>>>>> 060e48e (initial commit)
 
     if (!req.files) {
       return res.json({
@@ -74,7 +48,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       });
     }
 
-<<<<<<< HEAD
     console.log(req.files);
     if (Array.isArray(req.files.files)) {
       const posts: Post[] = [];
@@ -96,30 +69,11 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         posts.push(post);
       });
       return res.status(200).json({
-=======
-    console.log(req.files.files);
-
-    if (Array.isArray(req.files.files)) {
-      const posts: Post[] = [];
-      req.files.files.map(async (file) => {
-        const post = await Post.create({
-          ownerId: id,
-          url: `${req.protocol}://${req.hostname}:${
-            process.env.SERVER_PORT
-          }/drive/${id}/${file.md5}${path.extname(file.name)}`,
-          createdAt: Date.now().toString()
-        }).save();
-        posts.push(post);
-      });
-      console.log(posts);
-      return res.json({
->>>>>>> 060e48e (initial commit)
         error: false,
         message: "Files uploaded",
         posts
       });
     } else if (typeof req.files.files === "object") {
-<<<<<<< HEAD
       const { files } = req.files;
       await files.mv(`./drive/${id}/${files.md5}${path.extname(files.name)}`);
       console.log("get here");
@@ -137,45 +91,24 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         }
       });
       return res.status(200).json({
-=======
-      const file = req.files.files;
-      const post = await Post.create({
-        ownerId: id,
-        url: `${req.protocol}://${req.hostname}:${
-          process.env.SERVER_PORT
-        }/drive/${id}/${file.md5}${path.extname(file.name)}`,
-        createdAt: Date.now().toString()
-      }).save();
-      console.log(post);
-      return res.json({
->>>>>>> 060e48e (initial commit)
         error: false,
         message: "Files uploaded",
         posts: post
       });
     }
   } catch (error) {
-<<<<<<< HEAD
     console.log("error", error);
-=======
->>>>>>> 060e48e (initial commit)
     return res
       .status(500)
       .json({ message: "Internal server error", error: true });
   }
 });
 
-<<<<<<< HEAD
 router.get("/drive/:id", isLoggedIn, async (req, res) => {
   try {
     const id = req.params.id;
     console.log(id);
     const token = await getCookie(req);
-=======
-router.get("/file/:id", isLoggedIn, async (req, res) => {
-  try {
-    const token = req.headers["x-access-token"];
->>>>>>> 060e48e (initial commit)
 
     if (!token) {
       return res.status(401).json({
@@ -189,10 +122,6 @@ router.get("/file/:id", isLoggedIn, async (req, res) => {
       });
     }
     const userID = (await verifyAccessToken(token)) as string;
-<<<<<<< HEAD
-=======
-    const id = req.params.id;
->>>>>>> 060e48e (initial commit)
 
     if (!id) {
       return res
@@ -200,7 +129,6 @@ router.get("/file/:id", isLoggedIn, async (req, res) => {
         .json({ message: "No file id provided", error: true });
     }
 
-<<<<<<< HEAD
     const post = await prisma.post.findUnique({
       where: {
         id
@@ -388,9 +316,6 @@ router.post("/addFolder", async (req, res) => {
         error: false
       });
     });
-=======
-    return res.sendFile(path.join(__dirname, `../../drive/${userID}/${id}`));
->>>>>>> 060e48e (initial commit)
   } catch (error) {
     console.log(error);
   }

@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+<<<<<<< HEAD
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
@@ -17,6 +18,10 @@ const Home: NextPage = () => {
     });
   }, []);
 
+=======
+
+const Home: NextPage = () => {
+>>>>>>> 25379cf (starting to build frontend)
   return (
     // <Routes>
     //   <Route path="/" element={<Login />} />

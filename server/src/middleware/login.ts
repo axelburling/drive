@@ -75,10 +75,12 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
 =======
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
+import { getCookie } from "../utils/cookie";
 import { verifyAccessToken } from "../utils/jwt";
 
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers["x-access-token"];
+  // console.log(req);
+  const token = await getCookie(req);
   console.log(token);
   if (!token) {
     return res.status(401).json({

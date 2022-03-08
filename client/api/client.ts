@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 type HttpMethods = "GET" | "POST";
 
 type HttpRoutes = "auth" | "feed" | "posts" | "user" | "developer" | "cli";
+=======
+type HttpMethods = "get" | "put" | "post" | "delete";
+
+type HttpRoutes = "auth" | "feed" | "posts" | "user";
+>>>>>>> 25379cf (starting to build frontend)
 interface RestRequestOptions {
   method: HttpMethods;
   route: HttpRoutes;
