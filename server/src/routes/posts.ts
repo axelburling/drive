@@ -1,48 +1,24 @@
-import Cryptr from "cryptr";
 import { Router } from "express";
 import fs from "fs";
 import * as path from "path";
 import isLoggedIn from "../middleware/login";
 import { getCookie } from "../utils/cookie";
-import { getHeaders } from "../utils/headers";
 import { verifyAccessToken } from "../utils/jwt";
 import prisma, { Post } from "../utils/prisma";
 
 const router = Router();
 
-const secret = process.env.SECRET || "vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3";
-
-const cryptr = new Cryptr(secret);
-
 router.post("/upload", isLoggedIn, async (req, res) => {
   try {
-    let id: string;
-    const { clientid, clientsecret } = getHeaders(req);
     const token = await getCookie(req);
 
-    console.log(token);
-    console.log(clientid, clientsecret);
-
-    if (
-      !token &&
-      !clientid &&
-      !clientsecret &&
-      clientid.length === 0 &&
-      clientsecret.length === 0 &&
-      typeof token !== "string"
-    ) {
-      console.log("No token provided.");
+    if (!token && typeof token !== "string") {
       return res.json({
         error: "No token provided."
       });
     }
 
-    if (clientid) {
-      id = cryptr.decrypt(clientid);
-      console.log(id);
-    } else {
-      id = (await verifyAccessToken(token)) as string;
-    }
+    const id = (await verifyAccessToken(token)) as string;
 
     if (!req.files) {
       return res.json({
@@ -51,7 +27,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       });
     }
 
-    console.log(res.headersSent);
     if (Array.isArray(req.files.files)) {
       const posts: Post[] = [];
       req.files.files.map(async (file) => {
@@ -71,7 +46,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         posts.push(post);
       });
       console.log(posts);
-      console.log(res.headersSent);
       return res.json({
         error: false,
         message: "Files uploaded",
@@ -80,7 +54,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     } else if (typeof req.files.files === "object") {
       const { files } = req.files;
       await files.mv(`./drive/${id}/${files.md5}${path.extname(files.name)}`);
-      console.log(res.headersSent);
+
       const post = await prisma.post.create({
         data: {
           url: `${req.protocol}://${req.hostname}:${
@@ -93,7 +67,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
           }
         }
       });
-      console.log(res.headersSent);
       console.log("test");
       console.log(post);
       return res.json({
@@ -145,7 +118,9 @@ router.get("/drive/:id", isLoggedIn, async (req, res) => {
 
     if (post.viewers) {
       if (post.ownerId === userID || post.viewers.includes(userID)) {
-        return res.sendFile(path.join(`../../drive/${post.ownerId}/${id}`));
+        return res.sendFile(
+          path.join(`../../drive/${post.ownerId}/${post.url.split("/")[4]}`)
+        );
       } else {
         return res.status(403).json({
           message: "You are not authorized to view this file",

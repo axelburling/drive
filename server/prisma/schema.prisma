@@ -18,7 +18,7 @@ model User {
   password String
   avatar String?
   posts Post[]
-  keys Key[]
+  apikeys ApiKey[]
 }
 
 model Post {
@@ -30,7 +30,7 @@ model Post {
   viewers String[]
 }
 
-model Key {
+model ApiKey {
   id String @id @default(uuid())
   clientId String
   clientSecret String

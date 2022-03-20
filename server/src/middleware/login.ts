@@ -16,7 +16,10 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
     if (typeof clientid === "string" && typeof clientsecret === "string") {
       const id = cryptr.decrypt(clientid);
 
-      const user = await prisma.user.findUnique({ where: { id } });
+      const user = await prisma.user.findUnique({
+        where: { id },
+        include: { apikeys: true }
+      });
       if (!user) {
         return res.status(401).json({
           error: true,
@@ -31,18 +34,29 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
         });
       }
 
-      const key = await prisma.key.findFirst({
-        where: {
-          clientId: clientid
+      const key = user.apikeys.find((key) => {
+        // console.log(key);
+        if (key.clientSecret === clientsecret && key.clientId === clientid) {
+          return true;
         }
+        return false;
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - This is a string
+      console.log(key);
+
       if (!key || key.clientSecret !== clientsecret) {
         return res.status(401).json({
           error: true,
-          message: "Invalid token."
+          message: "Invalid input"
+        });
+      } else {
+        await prisma.apiKey.update({
+          where: {
+            id: key.id
+          },
+          data: {
+            usage: key.usage + 1
+          }
         });
       }
 
