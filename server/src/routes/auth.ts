@@ -1,0 +1,167 @@
+import { compare, genSalt, hash } from "bcryptjs";
+import { Router } from "express";
+import * as fs from "fs";
+import * as yup from "yup";
+import { getCookie, setCookie } from "../utils/cookie";
+import { createAccessToken, verifyAccessToken } from "../utils/jwt";
+import prisma from "../utils/prisma";
+
+const router = Router();
+
+const registerSchema = yup.object().shape({
+  n: yup.string().min(3).max(255).required(),
+  p: yup.string().min(3).max(255).required(),
+  e: yup.string().min(3).max(255).email().required()
+});
+
+const loginSchema = yup.object().shape({
+  e: yup.string().email().max(255).required(),
+  p: yup.string().min(6).max(255).required()
+});
+
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const { n, e, p } = registerSchema.validateSync(
+      { n: name, e: email, p: password },
+      { abortEarly: false }
+    );
+
+    const [userByEmail, userByName] = await Promise.all([
+      // User.findOne({ email: email }),
+      prisma.user.findFirst({ where: { email: e } }),
+      prisma.user.findFirst({ where: { name: n } })
+      // User.findOne({ name: name })
+    ]);
+
+    if (userByEmail || userByName) {
+      return res.status(400).json({
+        error: "User already exists"
+      });
+    }
+
+    const salt = await genSalt(Math.floor(Math.random() * 5) + 10);
+
+    const hashedPassword = await hash(p, salt);
+
+    const user = await prisma.user.create({
+      data: {
+        name: n,
+        email: e,
+        password: hashedPassword
+      }
+    });
+
+    fs.mkdir(`./drive/${user.id}`, null, (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+
+    const token = createAccessToken(user.id);
+
+    setCookie(req, res, token);
+
+    return res
+      .json({
+        error: false,
+        message: "User created",
+        user,
+        token
+      })
+      .status(200);
+  } catch (error) {
+    console.error(error);
+    if (error instanceof yup.ValidationError) {
+      return res.status(400).json({ message: error.message, error: true });
+    }
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: true });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const { e, p } = loginSchema.validateSync(
+      {
+        e: email,
+        p: password
+      },
+      { abortEarly: false }
+    );
+
+    const user = await prisma.user.findFirst({
+      where: { email: e },
+      include: { posts: true }
+    });
+    if (!user) {
+      return res
+        .json({ message: "Wrong password or email", error: true })
+        .status(401);
+    }
+    if (await compare(p, user.password)) {
+      const token = createAccessToken(user.id);
+
+      setCookie(req, res, token);
+
+      return res.json({ message: "user logged in", error: false, user, token });
+    } else {
+      return res
+        .json({ message: "Wrong password or email", error: true })
+        .status(401);
+    }
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return res.status(400).json({ message: error.errors, error: true });
+    }
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: true });
+  }
+});
+
+router.get("/me", async (req, res) => {
+  try {
+    const token = await getCookie(req);
+
+    if (!token) {
+      return res.status(401).json({
+        error: "No token provided."
+      });
+    }
+
+    if (typeof token !== "string") {
+      return res.status(401).json({
+        error: "Invalid token."
+      });
+    }
+
+    const id = (await verifyAccessToken(token)) as string;
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: { posts: true }
+    });
+    if (!user) {
+      return res.status(400).json({
+        error: "No user found with the provided id"
+      });
+    }
+
+    return res.json({
+      error: false,
+      message: "User found",
+      user
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: true });
+  }
+});
+
+export default router;

@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String
+  email String
+  password String
+  avatar String?
+  posts Post[]
+  keys Key[]
+}
+
+model Post {
+  id String @id @default(uuid())
+  url String
+  createdAt DateTime @default(now())
+  owner User @relation(fields: [ownerId], references: [id])
+  ownerId String
+  viewers String[]
+}
+
+model Key {
+  id String @id @default(uuid())
+  clientId String
+  clientSecret String
+  usage Int @default(0)
+  createdAt DateTime @default(now())
+  owner User @relation(fields: [ownerId], references: [id])
+  ownerId String
+}

@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  # server:
+  #   build:
+  #     context: "./server"
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "${SERVER_PORT}:${SERVER_PORT}"
+  #   volumes:
+  #     - ./server:/server
+  #   links:
+  #     - db
+  #   env_file:
+  #     - .env
+
+  db:
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    env_file:
+      - .env

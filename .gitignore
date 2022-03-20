@@ -1,0 +1,4 @@
+pg_data/
+.vscode/
+.env
+node_modules/
