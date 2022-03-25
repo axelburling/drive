@@ -1,7 +1,7 @@
-import { Key, Post, PrismaClient, User } from "@prisma/client";
+import { ApiKey, Post, PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export { Post, User, Key };
+export { Post, User, ApiKey };
 
 export default prisma;

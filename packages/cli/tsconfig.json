@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "CommonJS",
+    "lib": ["esnext", "esnext.asynciterable"],
+    "outDir": "dist",
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "inlineSourceMap": true,
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "typeRoots": ["node_modules/@types", "@types"]
+  },
+  "include": ["src/**/*"]
+}

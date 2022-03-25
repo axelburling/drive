@@ -17,7 +17,6 @@ router.get("/", isLoggedIn, async (req, res) => {
     }
 
     const id = (await verifyAccessToken(token)) as string;
-    // const posts = await Post.find({ take: 10 });
     let posts = await prisma.post.findMany({
       where: {
         ownerId: id

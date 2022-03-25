@@ -4,7 +4,6 @@ const getHeaders = (
   req: Request
 ): { clientid: string; clientsecret: string } => {
   const { clientid, clientsecret } = req.headers;
-  console.log(clientid, clientsecret);
   if (
     !clientid ||
     !clientsecret ||

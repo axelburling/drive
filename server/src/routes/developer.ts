@@ -84,6 +84,17 @@ router.post("/upload", isLoggedIn, async (req, res) => {
 
     const id = cryptr.decrypt(clientid);
 
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: true,
+        message: "User does not exist."
+      });
+    }
+
     if (!req.files) {
       return res.json({
         error: true,
@@ -185,10 +196,10 @@ router.get("/user", isLoggedIn, async (req, res) => {
   }
 });
 
-router.get("/download", isLoggedIn, async (req, res) => {
+router.get("/download/:id", isLoggedIn, async (req, res) => {
   try {
     const { clientid, clientsecret } = await getHeaders(req);
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (
       !clientid ||
@@ -233,25 +244,16 @@ router.get("/download", isLoggedIn, async (req, res) => {
       });
     }
 
-    // return res.json({
-    //   error: false,
-    //   message: "File downloaded",
-    //   post: post.url.split("/")[6]
-    // });
+    res.setHeader("fileending", post.url.split(".")[1]);
 
-    console.log(
-      path.join(
-        __dirname,
-        `../../drive/${post.ownerId}/${post.url.split("/")[6]}`
-      )
-    );
-
-    return res.sendFile(
-      path.join(
-        __dirname,
-        `../../drive/${post.ownerId}/${post.url.split("/")[6]}`
-      )
-    );
+    return res
+      .status(200)
+      .sendFile(
+        path.join(
+          __dirname,
+          `../../drive/${post.ownerId}/${post.url.split("/")[6]}`
+        )
+      );
   } catch (error) {
     console.log("error", error);
     return res.json({ message: "Internal server error", error: true });
