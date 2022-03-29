@@ -8,7 +8,7 @@ export class Auth extends Client {
 
   public async register(data: IUserRequest): Promise<IUserResponse> {
     return this.makeRequest<IUserResponse>({
-      method: "post",
+      method: "POST",
       route: "auth",
       action: "register",
       data: {
@@ -22,7 +22,7 @@ export class Auth extends Client {
 
   public async login(data: IUserRequest): Promise<IUserResponse> {
     return this.makeRequest<IUserResponse>({
-      method: "post",
+      method: "POST",
       route: "auth",
       action: "login",
       data: {
@@ -35,7 +35,7 @@ export class Auth extends Client {
 
   public async me(): Promise<IUserResponse> {
     return this.makeRequest<IUserResponse>({
-      method: "get",
+      method: "GET",
       route: "auth",
       action: "me",
       type: "json",
@@ -44,7 +44,7 @@ export class Auth extends Client {
 
   public async logout(): Promise<IUser> {
     return this.makeRequest<IUser>({
-      method: "post",
+      method: "POST",
       route: "auth",
       action: "logout",
       type: "json",

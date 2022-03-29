@@ -13,6 +13,7 @@ import {
   Link,
   Stack,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
 import { FaLock, FaUserAlt } from "react-icons/fa";
 import { FiMail } from "react-icons/fi";
@@ -24,6 +25,7 @@ const CFaMail = chakra(FiMail);
 
 const Register = () => {
   const { register } = useContext(AuthContext)!;
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -41,6 +43,9 @@ const Register = () => {
     try {
       const idk = await register({ name, email, password });
       console.log(idk);
+      if (idk && !idk.error) {
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.log(error);
     }

@@ -129,4 +129,45 @@ router.post(
   }
 );
 
+router.get("/avatar/:id", isLoggedIn, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const token = await getCookie(req);
+
+    const uid = (await verifyAccessToken(token)) as string;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: uid
+      }
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: true,
+        message: "User not found"
+      });
+    }
+
+    if (
+      !fs.existsSync(path.join(__dirname, `../../drive/${user.id}/meta/${id}`))
+    ) {
+      return res.status(404).json({
+        error: true,
+        message: "Avatar not found"
+      });
+    }
+
+    return res.sendFile(
+      path.join(__dirname, `../../drive/${user.id}/meta/${id}`)
+    );
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error"
+    });
+  }
+});
+
 export default router;

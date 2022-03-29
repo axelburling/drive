@@ -94,8 +94,7 @@ router.post("/login", async (req, res) => {
     );
 
     const user = await prisma.user.findFirst({
-      where: { email: e },
-      include: { posts: true }
+      where: { email: e }
     });
     if (!user) {
       return res
@@ -142,8 +141,7 @@ router.get("/me", async (req, res) => {
     const id = (await verifyAccessToken(token)) as string;
 
     const user = await prisma.user.findUnique({
-      where: { id },
-      include: { posts: true }
+      where: { id }
     });
     if (!user) {
       return res.status(400).json({

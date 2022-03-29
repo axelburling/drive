@@ -4,7 +4,6 @@ const getCookie = async (req: Request): Promise<any> => {
   return new Promise((resolve, reject) => {
     const token = req.cookies["sid"];
     if (token) {
-      console.log(token);
       resolve(token);
     }
     reject(null);

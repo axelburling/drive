@@ -50,7 +50,6 @@ program
           encoding: "utf8",
         })
       );
-      console.log(ans);
       if (fs.existsSync(path)) {
         console.log(`Uploading ${path}`);
       } else {

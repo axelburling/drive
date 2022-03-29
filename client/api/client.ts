@@ -1,4 +1,4 @@
-type HttpMethods = "get" | "put" | "post" | "delete";
+type HttpMethods = "GET" | "POST";
 
 type HttpRoutes = "auth" | "feed" | "posts" | "user";
 interface RestRequestOptions {

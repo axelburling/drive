@@ -1,9 +1,8 @@
-import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
 
-const Home: NextPage = () => {
+const IsLoggedIn = ({ children }: { children: any }) => {
   const { me } = useContext(AuthContext)!;
   const router = useRouter();
 
@@ -11,18 +10,11 @@ const Home: NextPage = () => {
     me().then((res) => {
       if (res && !res.error) {
         router.push("/dashboard");
-      } else {
-        router.push("/login");
       }
     });
   }, []);
 
-  return (
-    // <Routes>
-    //   <Route path="/" element={<Login />} />
-    // </Routes>
-    <h1>hello</h1>
-  );
+  return <>{children}</>;
 };
 
-export default Home;
+export default IsLoggedIn;

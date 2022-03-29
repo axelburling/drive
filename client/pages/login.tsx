@@ -17,6 +17,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
 import { FaLock } from "react-icons/fa";
 import { FiMail } from "react-icons/fi";
+import IsLoggedIn from "../components/isLoggedIn";
 import { AuthContext } from "../context/authContext";
 
 const CFaUserAlt = chakra(FiMail);
@@ -51,82 +52,84 @@ const Login = () => {
     setPassword("");
   };
   return (
-    <Flex
-      flexDirection="column"
-      width="100wh"
-      height="100vh"
-      backgroundColor="gray.200"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Stack
-        flexDir="column"
-        mb="2"
+    <IsLoggedIn>
+      <Flex
+        flexDirection="column"
+        width="100wh"
+        height="100vh"
+        backgroundColor="gray.200"
         justifyContent="center"
         alignItems="center"
       >
-        <Box minW={{ base: "90%", md: "468px" }}>
-          <form>
-            <Stack
-              spacing={4}
-              p="1rem"
-              backgroundColor="whiteAlpha.900"
-              boxShadow="lg"
-            >
-              <FormControl>
-                <InputGroup>
-                  <InputLeftElement
-                    pointerEvents="none"
-                    children={<CFaUserAlt color="gray.300" />}
-                  />
-                  <Input
-                    type="email"
-                    placeholder="email address"
-                    variant="outline"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </InputGroup>
-              </FormControl>
-              <FormControl>
-                <InputGroup>
-                  <InputLeftElement
-                    pointerEvents="none"
-                    color="gray.300"
-                    children={<CFaLock color="gray.300" />}
-                  />
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    variant="outline"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" onClick={handleShowClick}>
-                      {showPassword ? "Hide" : "Show"}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-                <FormHelperText textAlign="right">
-                  <Link>forgot password?</Link>
-                </FormHelperText>
-              </FormControl>
-              <Button
-                borderRadius={0}
-                type="submit"
-                variant="solid"
-                colorScheme="teal"
-                width="full"
-                onClick={handleClick}
+        <Stack
+          flexDir="column"
+          mb="2"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Box minW={{ base: "90%", md: "468px" }}>
+            <form>
+              <Stack
+                spacing={4}
+                p="1rem"
+                backgroundColor="whiteAlpha.900"
+                boxShadow="lg"
               >
-                Login
-              </Button>
-            </Stack>
-          </form>
-        </Box>
-      </Stack>
-    </Flex>
+                <FormControl>
+                  <InputGroup>
+                    <InputLeftElement
+                      pointerEvents="none"
+                      children={<CFaUserAlt color="gray.300" />}
+                    />
+                    <Input
+                      type="email"
+                      placeholder="email address"
+                      variant="outline"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </InputGroup>
+                </FormControl>
+                <FormControl>
+                  <InputGroup>
+                    <InputLeftElement
+                      pointerEvents="none"
+                      color="gray.300"
+                      children={<CFaLock color="gray.300" />}
+                    />
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      variant="outline"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <InputRightElement width="4.5rem">
+                      <Button h="1.75rem" size="sm" onClick={handleShowClick}>
+                        {showPassword ? "Hide" : "Show"}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                  <FormHelperText textAlign="right">
+                    <Link>forgot password?</Link>
+                  </FormHelperText>
+                </FormControl>
+                <Button
+                  borderRadius={0}
+                  type="submit"
+                  variant="solid"
+                  colorScheme="teal"
+                  width="full"
+                  onClick={handleClick}
+                >
+                  Login
+                </Button>
+              </Stack>
+            </form>
+          </Box>
+        </Stack>
+      </Flex>
+    </IsLoggedIn>
   );
 };
 

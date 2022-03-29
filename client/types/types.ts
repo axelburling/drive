@@ -9,6 +9,7 @@ export interface IUser {
 export interface IPost {
   id: string;
   url: string;
+  name: string;
   createdAt: string;
   ownerId: string;
   viewers: string[];
@@ -28,4 +29,8 @@ export interface IResponse {
 export interface IUserResponse extends IResponse {
   user: IUser;
   token: string;
+}
+
+export interface IPostResponse extends IResponse {
+  post: IPost[];
 }

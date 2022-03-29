@@ -23,6 +23,7 @@ model User {
 
 model Post {
   id String @id @default(uuid())
+  name String @default("")
   url String
   createdAt DateTime @default(now())
   owner User @relation(fields: [ownerId], references: [id])
