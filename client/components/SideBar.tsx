@@ -38,6 +38,7 @@ export default function SideBar({ fileChange }: SidebarProps) {
       minH="100vh"
       w="1rem"
       bg="blue"
+      position="fixed"
       // bg={useColorModeValue("gray.100", "gray.900")}
     >
       <SidebarContent

@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from "react";
 import MainWin from "../components/mainWin";
 import Navbar from "../components/Navbar";
 import ProtectedRoute from "../components/protectedRoute";
-import SideBar from "../components/SideBar";
 import { AuthContext } from "../context/authContext";
 import { FileContext } from "../context/fileContext";
 
@@ -41,7 +40,7 @@ const Dashboard = () => {
       <ProtectedRoute>
         <Navbar user={user} />
         <MainWin posts={posts} />
-        <SideBar fileChange={fileChange} />
+        {/* <SideBar fileChange={fileChange} /> */}
       </ProtectedRoute>
     </div>
   );

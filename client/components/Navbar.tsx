@@ -48,7 +48,10 @@ export default function Navbar({ user }: { user: IUser | null }) {
         borderBottom="1px"
         borderColor={useColorModeValue("gray.300", "gray.700")}
         p="0"
-        m="0"
+        // marginBottom="10"
+        w="100%"
+        h="70px"
+        position="fixed"
         // px={4}
       >
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
@@ -56,7 +59,7 @@ export default function Navbar({ user }: { user: IUser | null }) {
             size={"md"}
             w="30px"
             h="40px"
-            icon={<Image src={Logo.src} />}
+            icon={<Image src={Logo.src} alt="Logo" />}
             aria-label={"Open Menu"}
             // display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}

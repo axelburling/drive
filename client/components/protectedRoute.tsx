@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }: { children: any }) => {
   useEffect(() => {
     me().then((res) => {
       if (res && !res.error) {
-        router.push("/dashboard");
+        router.push(router.route ? router.route : "/dashboard");
       } else {
         router.push("/login");
       }

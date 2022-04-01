@@ -15,6 +15,15 @@ export interface IPost {
   viewers: string[];
 }
 
+export interface IApiKey {
+  id: string;
+  clientId: string;
+  clientSecret: string;
+  usage: number;
+  createdAt: Date;
+  ownerId: string;
+}
+
 export interface IUserRequest {
   email: string;
   password: string;
@@ -33,4 +42,8 @@ export interface IUserResponse extends IResponse {
 
 export interface IPostResponse extends IResponse {
   post: IPost[];
+}
+
+export interface IApikeyResonpose extends IResponse {
+  key: IApiKey;
 }

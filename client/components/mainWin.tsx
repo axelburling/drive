@@ -7,7 +7,7 @@ const IMAGE =
 
 const MainWin = ({ posts }: { posts: IPost[] | null }) => {
   return (
-    <Box minH="100vh" w="calc(100vw - 11rem)" float="right">
+    <Box h="calc(100vh - 70px)">
       {posts ? (
         <Grid templateColumns="repeat(4, 1fr)">
           {posts.map((post) => (
