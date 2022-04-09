@@ -51,6 +51,11 @@ const Login = () => {
     setEmail("");
     setPassword("");
   };
+
+  const responseGoogle = async (response: any) => {
+    console.log(response);
+  };
+
   return (
     <IsLoggedIn>
       <Flex

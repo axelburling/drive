@@ -17,11 +17,11 @@ router.get("/", isLoggedIn, async (req, res) => {
     }
 
     const id = (await verifyAccessToken(token)) as string;
+    // const posts = await Post.find({ take: 10 });
     let posts = await prisma.post.findMany({
       where: {
         ownerId: id
-      },
-      take: 15
+      }
     });
     posts = posts.sort((p1: Post, p2: Post) => {
       return p1.createdAt.getSeconds() - p2.createdAt.getSeconds();
@@ -34,10 +34,6 @@ router.get("/", isLoggedIn, async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      error: true,
-      message: "Internal server error"
-    });
   }
 });
 

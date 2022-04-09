@@ -4,6 +4,7 @@ export interface IUser {
   email: string;
   password: string;
   avatar: string;
+  apikeys: IApiKey[];
 }
 
 export interface IPost {

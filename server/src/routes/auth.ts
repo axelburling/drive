@@ -94,7 +94,8 @@ router.post("/login", async (req, res) => {
     );
 
     const user = await prisma.user.findFirst({
-      where: { email: e }
+      where: { email: e },
+      include: { posts: true, apikeys: true }
     });
     if (!user) {
       return res
@@ -141,7 +142,8 @@ router.get("/me", async (req, res) => {
     const id = (await verifyAccessToken(token)) as string;
 
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
+      include: { posts: true, apikeys: true }
     });
     if (!user) {
       return res.status(400).json({
@@ -160,6 +162,14 @@ router.get("/me", async (req, res) => {
       .status(500)
       .json({ message: "Internal server error", error: true });
   }
+});
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("sid");
+  return res.json({
+    error: false,
+    message: "Logged out"
+  });
 });
 
 export default router;

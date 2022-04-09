@@ -19,6 +19,10 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   const logout = async () => {
     try {
+      setLoading(true);
+      await auth.logout();
+      setUser(null);
+      setLoading(false);
     } catch (error) {}
   };
 

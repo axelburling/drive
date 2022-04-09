@@ -1,4 +1,5 @@
-import type { IUser, IUserRequest, IUserResponse } from "../types/types";
+import type { IUserRequest, IUserResponse } from "../types/types";
+import { IResponse } from "../types/types";
 import { Client } from "./client";
 
 export class Auth extends Client {
@@ -42,12 +43,11 @@ export class Auth extends Client {
     });
   }
 
-  public async logout(): Promise<IUser> {
-    return this.makeRequest<IUser>({
+  public async logout(): Promise<IResponse> {
+    return this.makeRequest<IResponse>({
       method: "POST",
       route: "auth",
       action: "logout",
-      type: "json",
     });
   }
 }

@@ -6,24 +6,22 @@ import {
   HStack,
   IconButton,
   Image,
+  InputGroup,
   Link,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItem,
   MenuList,
-  Stack,
   useColorModeValue,
-  useDisclosure,
 } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import Logo from "../assets/logo.svg";
 import { IUser } from "../types/types";
 // import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
-const Links = ["Dashboard", "Projects", "Team"];
+const Links = ["Profile", "Developer", "Settings"];
 
-const NavLink = ({ children }: { children: ReactNode }) => (
+const NavLink = ({ path, children }: { path: string; children: ReactNode }) => (
   <Link
     px={2}
     py={1}
@@ -32,14 +30,23 @@ const NavLink = ({ children }: { children: ReactNode }) => (
       textDecoration: "none",
       bg: useColorModeValue("gray.200", "gray.700"),
     }}
-    href={"#"}
+    href={`/${path.toLowerCase()}`}
   >
     {children}
   </Link>
 );
 
-export default function Navbar({ user }: { user: IUser | null }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+export default function Navbar({
+  user,
+  logout,
+  fileChange,
+}: {
+  user: IUser | null;
+  logout: () => Promise<void>;
+  fileChange?: (e: React.ChangeEvent<HTMLInputElement>) => any;
+}) {
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const ref = useRef<HTMLInputElement | null>(null);
 
   return (
     <>
@@ -51,11 +58,62 @@ export default function Navbar({ user }: { user: IUser | null }) {
         // marginBottom="10"
         w="100%"
         h="70px"
-        position="fixed"
+        position="sticky"
+        top="0"
         // px={4}
       >
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <IconButton
+          {fileChange ? (
+            <Menu size="sm">
+              <MenuButton
+                as={IconButton}
+                icon={<Image src={Logo.src} />}
+                size={"md"}
+                w="30px"
+                h="40px"
+              >
+                Actions
+              </MenuButton>
+              <MenuList>
+                <MenuItem>
+                  <InputGroup
+                    onClick={() => {
+                      ref.current?.click();
+                    }}
+                  >
+                    <input
+                      type="file"
+                      name="file"
+                      id=""
+                      multiple={true}
+                      onChange={fileChange}
+                      hidden={true}
+                      ref={(e) => {
+                        ref.current = e;
+                      }}
+                    />
+                    <>File Upload</>
+                  </InputGroup>
+                </MenuItem>
+                <MenuItem>Create a Copy</MenuItem>
+                <MenuItem>Mark as Draft</MenuItem>
+                <MenuItem>Delete</MenuItem>
+                <MenuItem>Attend a Workshop</MenuItem>
+              </MenuList>
+            </Menu>
+          ) : (
+            <IconButton
+              aria-label="Home"
+              icon={<Image src={Logo.src} />}
+              size="md"
+              w="30px"
+              h="30px"
+              onClick={() => {
+                window.location.href = "/dashboard";
+              }}
+            />
+          )}
+          {/* <IconButton
             size={"md"}
             w="30px"
             h="40px"
@@ -63,7 +121,7 @@ export default function Navbar({ user }: { user: IUser | null }) {
             aria-label={"Open Menu"}
             // display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}
-          />
+          /> */}
           <HStack spacing={8} alignItems={"center"}>
             <HStack
               as={"nav"}
@@ -71,7 +129,9 @@ export default function Navbar({ user }: { user: IUser | null }) {
               display={{ base: "none", md: "flex" }}
             >
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink key={link} path={link}>
+                  {link}
+                </NavLink>
               ))}
             </HStack>
           </HStack>
@@ -94,16 +154,24 @@ export default function Navbar({ user }: { user: IUser | null }) {
                 />
               </MenuButton>
               <MenuList>
-                <MenuItem>Link 1</MenuItem>
-                <MenuItem>Link 2</MenuItem>
-                <MenuDivider />
-                <MenuItem>Link 3</MenuItem>
+                {Links.map((link) => (
+                  <MenuItem key={link}>
+                    <a href={`/${link.toLowerCase()}`}>{link}</a>
+                  </MenuItem>
+                ))}
+                <MenuItem
+                  onClick={async () => {
+                    await logout();
+                  }}
+                >
+                  Logout
+                </MenuItem>
               </MenuList>
             </Menu>
           </Flex>
         </Flex>
 
-        {isOpen ? (
+        {/* {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
@@ -111,7 +179,7 @@ export default function Navbar({ user }: { user: IUser | null }) {
               ))}
             </Stack>
           </Box>
-        ) : null}
+        ) : null} */}
       </Box>
     </>
   );
