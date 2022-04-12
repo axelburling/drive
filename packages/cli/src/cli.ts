@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
+import { ChildProcess } from "child_process";
 import { Command } from "commander";
 import fetch, { Headers } from "cross-fetch";
 import FormData from "form-data";
 import * as fs from "fs";
 import { prompt } from "inquirer";
+import open from "open";
 import os from "os";
 import path from "path";
+import io from "socket.io-client";
 
 export interface IApiKey {
   id: string;
@@ -25,7 +28,6 @@ export interface IPost {
   viewers: string[];
   name?: string;
 }
-
 const program = new Command();
 
 program
@@ -37,70 +39,58 @@ program
   .command("login")
   .description("Login to the service")
   .action(async () => {
-    const ans = await prompt<{ clientId: string; clientSecret: string }>([
-      {
-        type: "input",
-        name: "email",
-        message: "email",
-      },
-      {
-        type: "input",
-        name: "password",
-        message: "password",
-      },
-    ]);
-    const res = await (
-      await fetch("http://localhost:4000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(ans),
-      })
-    ).json();
+    let o: ChildProcess;
 
-    if (res.error) {
-      console.log(res.message);
-      return;
-    }
+    const socket = io("http://localhost:4000");
 
-    const apikeys: IApiKey[] = res.user.apikeys;
-
-    if (!apikeys || apikeys.length === 0) {
-      console.log("No apikeys found");
-      return;
-    }
-
-    const a = await prompt<{ apikey: IApiKey }>([
-      {
-        choices: apikeys
-          .sort((a, b) => b.usage - a.usage)
-          .map((apikey) => {
-            return {
-              name: `${apikey.clientId.substring(0, 20)} (${
-                apikey.usage
-              } usage)`,
-              value: {
-                clientId: apikey.clientId,
-                clientSecret: apikey.clientSecret,
-              },
-            };
-          }),
-        type: "list",
-        name: "apikey",
-        message: "apikey",
-      },
-    ]);
-
-    if (fs.existsSync(`${os.homedir()}/adrive.txt`)) {
-      fs.unlinkSync(`${os.homedir()}/adrive.txt`);
-    }
-    fs.writeFileSync(`${os.homedir()}/adrive.txt`, JSON.stringify(a), {
-      encoding: "utf8",
+    socket.on("connect", () => {
+      //add some sort of loader
+      console.clear();
     });
 
-    // add chalk
-    console.log("Login successful");
+    socket.on("token", async ({ token }) => {
+      o = await open(`http://localhost:3000/cli?token=${token}`);
+    });
+
+    socket.on("info", async ({ apikeys }: { apikeys: IApiKey[] }) => {
+      const a = await prompt<{ apikey: IApiKey }>([
+        {
+          choices: apikeys
+            .sort((a, b) => b.usage - a.usage)
+            .map((apikey) => {
+              return {
+                name: `${apikey.clientId.substring(0, 20)} (${
+                  apikey.usage
+                } usage)`,
+                value: {
+                  clientId: apikey.clientId,
+                  clientSecret: apikey.clientSecret,
+                },
+              };
+            }),
+          type: "list",
+          name: "apikey",
+          message: "apikey",
+        },
+      ]);
+
+      if (fs.existsSync(`${os.homedir()}/adrive.txt`)) {
+        fs.unlinkSync(`${os.homedir()}/adrive.txt`);
+      }
+      fs.writeFileSync(`${os.homedir()}/adrive.txt`, JSON.stringify(a), {
+        encoding: "utf8",
+      });
+
+      o.kill(0);
+
+      // add chalk
+      console.log("Login successful");
+      process.exit(0);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("disconnected");
+    });
   });
 
 program

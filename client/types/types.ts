@@ -5,6 +5,7 @@ export interface IUser {
   password: string;
   avatar: string;
   apikeys: IApiKey[];
+  posts: IPost[];
 }
 
 export interface IPost {

@@ -1,6 +1,6 @@
 type HttpMethods = "GET" | "POST";
 
-type HttpRoutes = "auth" | "feed" | "posts" | "user" | "developer";
+type HttpRoutes = "auth" | "feed" | "posts" | "user" | "developer" | "cli";
 interface RestRequestOptions {
   method: HttpMethods;
   route: HttpRoutes;

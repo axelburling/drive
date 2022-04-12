@@ -8,17 +8,21 @@ import morgan from "morgan";
 import "reflect-metadata";
 import { Server } from "socket.io";
 import auth from "./routes/auth";
+import cli from "./routes/cli";
 import developer from "./routes/developer";
 import feed from "./routes/feed";
 import posts from "./routes/posts";
 import users from "./routes/user";
+import { genSecret } from "./utils/crypto";
 
 config();
+
+export const sockets = new Map<string, string>();
 
 // create express app
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+export const io = new Server(server);
 
 app.use(express.json());
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
@@ -37,9 +41,15 @@ app.use("/api/posts", posts);
 app.use("/api/feed", feed);
 app.use("/api/users", users);
 app.use("/api/developer", developer);
+app.use("/api/cli", cli);
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  console.log("a user connected", socket.id);
+  const token = genSecret();
+  sockets.set(token, socket.id);
+
+  console.log(sockets);
+  socket.emit("token", { token });
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
