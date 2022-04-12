@@ -1,3 +1,5 @@
+import { Body, fetch } from "@tauri-apps/api/http";
+
 type HttpMethods = "GET" | "POST";
 
 type HttpRoutes = "auth" | "feed" | "posts" | "user" | "developer" | "cli";
@@ -11,6 +13,7 @@ interface RestRequestOptions {
 }
 
 export class Client {
+  private readonly basedUrl = "http://localhost:3000";
   private readonly baseUrl: string = " http://localhost:4000/api";
 
   public async makeRequest<T>({
@@ -22,35 +25,35 @@ export class Client {
     type = "json",
   }: RestRequestOptions): Promise<T> {
     try {
-      console.log(process.env);
       action = action ? `/${action}` : "";
       query = query === undefined ? "" : `/?type=${query}`;
       console.log(data);
       let res;
       if (type === "json") {
-        res = await fetch(`${this.baseUrl}/${route}${action}${query}`, {
+        res = await fetch<T>(`${this.baseUrl}/${route}${action}${query}`, {
           method,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": `${process.env.NEXT_PUBLIC_FRONTEND_URL}`,
+            "Access-Control-Allow-Origin": `${this.basedUrl}`,
           },
-          body: JSON.stringify(data),
-          credentials: "include",
+          body: JSON.stringify(data) as unknown as Body,
+          // credentials: "include",
         });
       } else if (type === "formData") {
-        res = await fetch(`${this.baseUrl}/${route}${action}${query}`, {
+        res = await fetch<T>(`${this.baseUrl}/${route}${action}${query}`, {
           method,
           headers: {
-            "Access-Control-Allow-Origin": `${process.env.NEXT_PUBLIC_FRONTEND_URL}`,
+            "Access-Control-Allow-Origin": `${this.basedUrl}`,
           },
-          body: data as FormData,
-          credentials: "include",
+          body: data as Body,
+          // credentials: "include",
         });
       }
       if (!res) {
         throw new Error("No response from server");
       }
-      const resBody = await res.json();
+
+      const resBody = await res.data;
       if (!resBody) {
         throw new Error("No data in response");
       }

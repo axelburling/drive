@@ -50,8 +50,6 @@ const Dashboard = () => {
     });
   };
 
-  console.log(logout);
-
   return (
     <div>
       <ProtectedRoute>

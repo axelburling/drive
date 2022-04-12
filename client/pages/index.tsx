@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
@@ -17,12 +17,7 @@ const Home: NextPage = () => {
     });
   }, []);
 
-  return (
-    // <Routes>
-    //   <Route path="/" element={<Login />} />
-    // </Routes>
-    <h1>hello</h1>
-  );
+  return <></>;
 };
 
 export default Home;

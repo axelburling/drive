@@ -1,4 +1,3 @@
-import {} from "next/";
 import type { IUserRequest, IUserResponse } from "../types/types";
 import { IResponse } from "../types/types";
 import { Client } from "./client";

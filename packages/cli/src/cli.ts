@@ -1,12 +1,22 @@
 #!/usr/bin/env node
+// let chalk = require("chalk");
+// (async() => {
 
+//   chalk = await import("chalk");
+// })()
+import chalk from "chalk";
+import { rainbow } from "chalk-animation";
+import { ChildProcess } from "child_process";
+import { Spinner } from "cli-spinner";
 import { Command } from "commander";
 import fetch, { Headers } from "cross-fetch";
 import FormData from "form-data";
 import * as fs from "fs";
 import { prompt } from "inquirer";
+import open from "open";
 import os from "os";
 import path from "path";
+import io from "socket.io-client";
 
 export interface IApiKey {
   id: string;
@@ -25,82 +35,83 @@ export interface IPost {
   viewers: string[];
   name?: string;
 }
-
 const program = new Command();
+const spiner = new Spinner({ text: "Waiting for login in browser" });
 
 program
   .name("Adrive")
   .description("CLI to the adrive")
   .version(`v${require("../package.json").version}`);
 
+program.command("test").action(() => {
+  console.log("test");
+  spiner.clearLine(process.stdout).start();
+});
+
 program
   .command("login")
   .description("Login to the service")
   .action(async () => {
-    const ans = await prompt<{ clientId: string; clientSecret: string }>([
-      {
-        type: "input",
-        name: "email",
-        message: "email",
-      },
-      {
-        type: "input",
-        name: "password",
-        message: "password",
-      },
-    ]);
-    const res = await (
-      await fetch("http://localhost:4000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(ans),
-      })
-    ).json();
+    const rain = rainbow("Welcome to Adrive");
+    let o: ChildProcess;
 
-    if (res.error) {
-      console.log(res.message);
-      return;
-    }
+    const socket = io("http://localhost:4000");
 
-    const apikeys: IApiKey[] = res.user.apikeys;
-
-    if (!apikeys || apikeys.length === 0) {
-      console.log("No apikeys found");
-      return;
-    }
-
-    const a = await prompt<{ apikey: IApiKey }>([
-      {
-        choices: apikeys
-          .sort((a, b) => b.usage - a.usage)
-          .map((apikey) => {
-            return {
-              name: `${apikey.clientId.substring(0, 20)} (${
-                apikey.usage
-              } usage)`,
-              value: {
-                clientId: apikey.clientId,
-                clientSecret: apikey.clientSecret,
-              },
-            };
-          }),
-        type: "list",
-        name: "apikey",
-        message: "apikey",
-      },
-    ]);
-
-    if (fs.existsSync(`${os.homedir()}/adrive.txt`)) {
-      fs.unlinkSync(`${os.homedir()}/adrive.txt`);
-    }
-    fs.writeFileSync(`${os.homedir()}/adrive.txt`, JSON.stringify(a), {
-      encoding: "utf8",
+    socket.on("connect", () => {
+      console.log(chalk.green("Connected to server"));
+      rain.start();
+      spiner.start();
     });
 
-    // add chalk
-    console.log("Login successful");
+    socket.on("token", async ({ token }) => {
+      o = await open(`http://localhost:3000/cli?token=${token}`);
+    });
+
+    socket.on("info", async ({ apikeys }: { apikeys: IApiKey[] }) => {
+      spiner.stop();
+      const a = await prompt<{ apikey: IApiKey }>([
+        {
+          choices: apikeys
+            .sort((a, b) => b.usage - a.usage)
+            .map((apikey) => {
+              return {
+                name: `${apikey.clientId.substring(0, 20)} (${
+                  apikey.usage
+                } usage)`,
+                value: {
+                  clientId: apikey.clientId,
+                  clientSecret: apikey.clientSecret,
+                },
+              };
+            }),
+          type: "list",
+          name: "apikey",
+          message: "apikey",
+        },
+      ]);
+
+      if (fs.existsSync(`${os.homedir()}/adrive.txt`)) {
+        fs.unlinkSync(`${os.homedir()}/adrive.txt`);
+      }
+      fs.writeFileSync(`${os.homedir()}/adrive.txt`, JSON.stringify(a), {
+        encoding: "utf8",
+      });
+
+      socket.close();
+
+      o.kill(0);
+
+      rain.stop();
+      console.log(chalk.green("Login successful"));
+      process.exit(0);
+    });
+
+    socket.on("disconnect", () => {
+      rain.stop();
+      spiner.stop();
+      console.log(chalk.red("Login failed due to redis connection"));
+      process.exit(1);
+    });
   });
 
 program
@@ -190,6 +201,7 @@ program.command("posts").action(async () => {
   }
 });
 
+// download next up
 program
   .command("download")
   .description("Download a file from the server")
