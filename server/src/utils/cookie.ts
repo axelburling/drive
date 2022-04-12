@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-const getCookie = async (req: Request): Promise<any> => {
+const getCookie = async (req: Request): Promise<string> => {
   return new Promise((resolve, reject) => {
     const token = req.cookies["sid"];
     if (token) {

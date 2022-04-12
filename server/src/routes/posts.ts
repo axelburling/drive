@@ -51,7 +51,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       });
     }
 
-    console.log(res.headersSent);
+    console.log(req.files);
     if (Array.isArray(req.files.files)) {
       const posts: Post[] = [];
       req.files.files.map(async (file) => {
@@ -61,6 +61,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
             url: `${req.protocol}://${req.hostname}:${
               process.env.SERVER_PORT
             }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
+            name: file.name,
             owner: {
               connect: {
                 id
@@ -70,8 +71,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         });
         posts.push(post);
       });
-      console.log(posts);
-      console.log(res.headersSent);
       return res.json({
         error: false,
         message: "Files uploaded",
@@ -80,12 +79,12 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     } else if (typeof req.files.files === "object") {
       const { files } = req.files;
       await files.mv(`./drive/${id}/${files.md5}${path.extname(files.name)}`);
-      console.log(res.headersSent);
       const post = await prisma.post.create({
         data: {
           url: `${req.protocol}://${req.hostname}:${
             process.env.SERVER_PORT
           }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
+          name: files.name,
           owner: {
             connect: {
               id
@@ -93,9 +92,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
           }
         }
       });
-      console.log(res.headersSent);
-      console.log("test");
-      console.log(post);
       return res.json({
         error: false,
         message: "Files uploaded",

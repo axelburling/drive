@@ -10,7 +10,6 @@ const cryptr = new Cryptr(secret);
 
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
   const { clientid, clientsecret } = req.headers;
-  console.log(clientid, clientsecret);
 
   if (clientid || clientsecret) {
     if (typeof clientid === "string" && typeof clientsecret === "string") {

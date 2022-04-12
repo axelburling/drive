@@ -13,4 +13,16 @@ export class User extends Client {
       type: "json",
     });
   }
+
+  public async resetKey(apiKeyID: string) {
+    return this.makeRequest<IApikeyResonpose | undefined>({
+      method: "POST",
+      route: "developer",
+      action: "reset",
+      type: "json",
+      data: {
+        apikey: apiKeyID,
+      },
+    });
+  }
 }

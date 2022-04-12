@@ -59,6 +59,69 @@ router.get("/", isLoggedIn, async (req, res) => {
   }
 });
 
+router.post("/reset", isLoggedIn, async (req, res) => {
+  try {
+    const token = await getCookie(req);
+    const id = (await verifyAccessToken(token)) as string;
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      return res.status(401).json({
+        error: true,
+        message: "User does not exist."
+      });
+    }
+
+    const { apikey } = req.body;
+    // prisma.apiKey.create({
+    //   data: {
+    //     clientId: apikey.clientId,
+    //     clientSecret: apikey.clientSecret,
+    //     owner: {
+    //       connect: {
+    //         id
+    //       }
+    //     }
+    //   }
+    // });
+    const key = await prisma.apiKey.findFirst({
+      where: {
+        id: apikey,
+        ownerId: id
+      }
+    });
+
+    if (!key) {
+      return res.status(401).json({
+        error: true,
+        message: "Invalid key."
+      });
+    }
+
+    const newSecret = genSecret();
+
+    const newkey = await prisma.apiKey.update({
+      where: {
+        id: key.id
+      },
+      data: {
+        clientSecret: newSecret
+      }
+    });
+
+    return res.json({
+      error: false,
+      message: "Key reset",
+      key: newkey
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error"
+    });
+  }
+});
+
 router.get("/test", isLoggedIn, (req, res) => {
   return res.json({
     error: false,
@@ -111,6 +174,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
             url: `${req.protocol}://${req.hostname}:${
               process.env.SERVER_PORT
             }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
+            name: file.name,
             owner: {
               connect: {
                 id
@@ -135,6 +199,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
           url: `${req.protocol}://${req.hostname}:${
             process.env.SERVER_PORT
           }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
+          name: files.name,
           owner: {
             connect: {
               id
@@ -258,6 +323,41 @@ router.get("/download/:id", isLoggedIn, async (req, res) => {
     console.log("error", error);
     return res.json({ message: "Internal server error", error: true });
   }
+});
+
+router.get("/posts", isLoggedIn, async (req, res) => {
+  const { clientid, clientsecret } = await getHeaders(req);
+
+  if (
+    !clientid ||
+    !clientsecret ||
+    typeof clientid !== "string" ||
+    typeof clientsecret !== "string"
+  ) {
+    return res.json({
+      error: "No token provided."
+    });
+  }
+
+  const id = cryptr.decrypt(clientid);
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: { posts: true }
+  });
+
+  if (!user) {
+    return res.json({
+      error: true,
+      message: "User does not exist."
+    });
+  }
+
+  return res.json({
+    error: false,
+    message: "Posts found",
+    posts: user.posts
+  });
 });
 
 export default router;

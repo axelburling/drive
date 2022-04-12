@@ -67,6 +67,7 @@ export default function Navbar({
             <Menu size="sm">
               <MenuButton
                 as={IconButton}
+                marginLeft={2}
                 icon={<Image src={Logo.src} />}
                 size={"md"}
                 w="30px"
@@ -104,6 +105,7 @@ export default function Navbar({
           ) : (
             <IconButton
               aria-label="Home"
+              marginLeft={2}
               icon={<Image src={Logo.src} />}
               size="md"
               w="30px"
@@ -135,7 +137,7 @@ export default function Navbar({
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"center"}>
+          <Flex alignItems={"center"} zIndex={10000000}>
             <Menu>
               <MenuButton
                 as={Button}
@@ -145,7 +147,8 @@ export default function Navbar({
                 minW={0}
               >
                 <Avatar
-                  size={"sm"}
+                  size={"md"}
+                  marginRight={1}
                   src={
                     user && user.avatar
                       ? user.avatar
@@ -153,7 +156,7 @@ export default function Navbar({
                   }
                 />
               </MenuButton>
-              <MenuList>
+              <MenuList zIndex={100}>
                 {Links.map((link) => (
                   <MenuItem key={link}>
                     <a href={`/${link.toLowerCase()}`}>{link}</a>
@@ -170,16 +173,6 @@ export default function Navbar({
             </Menu>
           </Flex>
         </Flex>
-
-        {/* {isOpen ? (
-          <Box pb={4} display={{ md: "none" }}>
-            <Stack as={"nav"} spacing={4}>
-              {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
-              ))}
-            </Stack>
-          </Box>
-        ) : null} */}
       </Box>
     </>
   );
