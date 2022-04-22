@@ -95,12 +95,12 @@ router.post("/login", async (req, res) => {
 
     const user = await prisma.user.findFirst({
       where: { email: e },
-      include: { posts: true, apikeys: true }
+      include: { posts: false, apikeys: true }
     });
     if (!user) {
       return res
-        .json({ message: "Wrong password or email", error: true })
-        .status(401);
+        .status(401)
+        .json({ message: "Wrong password or email", error: true });
     }
     if (await compare(p, user.password)) {
       const token = createAccessToken(user.id);
@@ -110,8 +110,8 @@ router.post("/login", async (req, res) => {
       return res.json({ message: "user logged in", error: false, user, token });
     } else {
       return res
-        .json({ message: "Wrong password or email", error: true })
-        .status(401);
+        .status(401)
+        .json({ message: "Wrong password or email", error: true });
     }
   } catch (error) {
     if (error instanceof yup.ValidationError) {

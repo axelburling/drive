@@ -13,6 +13,7 @@ import {
   InputRightElement,
   Link,
   Stack,
+  useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
@@ -27,7 +28,9 @@ const CFaLock = chakra(FaLock);
 const Cli = () => {
   const { login } = useContext(AuthContext)!;
   const cli = new C();
-  const { token } = useRouter().query;
+  const toast = useToast();
+  const router = useRouter();
+  const { token } = router.query;
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,8 +54,30 @@ const Cli = () => {
         typeof token === "string"
       ) {
         console.log(idk);
-        const res = await cli.send({ token, user: idk.user });
-        console.log(res);
+        console.log(token);
+        try {
+          const res = await cli.send({ token, user: idk.user });
+          console.log(res);
+          if (res && !res.error) {
+            toast({
+              title: "Success",
+              description:
+                "You have successfully logged in to the CLI, Please check your terminal to continue",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+            });
+            router.push("/dashboard");
+          }
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Something went wrong when logging in",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
       }
     } catch (error) {
       console.log(error);

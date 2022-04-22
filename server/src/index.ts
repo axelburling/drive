@@ -45,10 +45,9 @@ app.use("/api/cli", cli);
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
-  const token = genSecret();
+  const token = genSecret().replace(/[^a-zA-Z0-9 ]/g, "");
   sockets.set(token, socket.id);
 
-  console.log(sockets);
   socket.emit("token", { token });
   socket.on("disconnect", () => {
     console.log("user disconnected");

@@ -12,7 +12,6 @@ const router = Router();
 router.post("/", (req, res) => {
   try {
     const { token, user }: { token: string; user: IUser } = req.body;
-    console.log(sockets);
     const s = sockets.get(token);
     if (!s) {
       return res.status(400).json({

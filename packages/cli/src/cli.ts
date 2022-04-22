@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+import chalk from "chalk";
+import { rainbow } from "chalk-animation";
 import { ChildProcess } from "child_process";
+import { Spinner } from "cli-spinner";
 import { Command } from "commander";
 import fetch, { Headers } from "cross-fetch";
 import FormData from "form-data";
@@ -29,6 +32,7 @@ export interface IPost {
   name?: string;
 }
 const program = new Command();
+const spiner = new Spinner();
 
 program
   .name("Adrive")
@@ -39,13 +43,15 @@ program
   .command("login")
   .description("Login to the service")
   .action(async () => {
+    const rain = rainbow("Welcome to Adrive");
     let o: ChildProcess;
 
+    rain.start();
+    spiner.start();
     const socket = io("http://localhost:4000");
 
     socket.on("connect", () => {
-      //add some sort of loader
-      console.clear();
+      console.log(chalk.green("Connected to server"));
     });
 
     socket.on("token", async ({ token }) => {
@@ -53,6 +59,11 @@ program
     });
 
     socket.on("info", async ({ apikeys }: { apikeys: IApiKey[] }) => {
+      spiner.stop();
+      if (apikeys.length === 0) {
+        console.log(chalk.red("No API keys found"));
+        return;
+      }
       const a = await prompt<{ apikey: IApiKey }>([
         {
           choices: apikeys
@@ -81,15 +92,21 @@ program
         encoding: "utf8",
       });
 
+      socket.close();
+
       o.kill(0);
 
-      // add chalk
-      console.log("Login successful");
+      rain.stop();
+      console.log(chalk.green("Login successful"));
+      socket.close();
       process.exit(0);
     });
 
     socket.on("disconnect", () => {
-      console.log("disconnected");
+      rain.stop();
+      spiner.stop();
+      console.log(chalk.red("Login failed due to redis connection"));
+      process.exit(1);
     });
   });
 

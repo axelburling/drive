@@ -20,9 +20,6 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     const { clientid, clientsecret } = getHeaders(req);
     const token = await getCookie(req);
 
-    console.log(token);
-    console.log(clientid, clientsecret);
-
     if (
       !token &&
       !clientid &&
@@ -71,7 +68,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         });
         posts.push(post);
       });
-      return res.json({
+      return res.status(200).json({
         error: false,
         message: "Files uploaded",
         posts
@@ -79,6 +76,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     } else if (typeof req.files.files === "object") {
       const { files } = req.files;
       await files.mv(`./drive/${id}/${files.md5}${path.extname(files.name)}`);
+      console.log("get here");
       const post = await prisma.post.create({
         data: {
           url: `${req.protocol}://${req.hostname}:${
@@ -92,7 +90,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
           }
         }
       });
-      return res.json({
+      return res.status(200).json({
         error: false,
         message: "Files uploaded",
         posts: post
@@ -100,7 +98,9 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     }
   } catch (error) {
     console.log("error", error);
-    return res.json({ message: "Internal server error", error: true });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: true });
   }
 });
 
