@@ -13,10 +13,7 @@ import {
   Link,
   Stack,
 } from "@chakra-ui/react";
-<<<<<<< HEAD
 import { useRouter } from "next/router";
-=======
->>>>>>> 25379cf (starting to build frontend)
 import React, { useContext, useState } from "react";
 import { FaLock, FaUserAlt } from "react-icons/fa";
 import { FiMail } from "react-icons/fi";
@@ -28,10 +25,7 @@ const CFaMail = chakra(FiMail);
 
 const Register = () => {
   const { register } = useContext(AuthContext)!;
-<<<<<<< HEAD
   const router = useRouter();
-=======
->>>>>>> 25379cf (starting to build frontend)
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,12 +43,9 @@ const Register = () => {
     try {
       const idk = await register({ name, email, password });
       console.log(idk);
-<<<<<<< HEAD
       if (idk && !idk.error) {
         router.push("/dashboard");
       }
-=======
->>>>>>> 25379cf (starting to build frontend)
     } catch (error) {
       console.log(error);
     }

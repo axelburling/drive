@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useToast } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
 import MainWin from "../components/mainWin";
@@ -62,12 +61,6 @@ const Dashboard = () => {
       </ProtectedRoute>
     </div>
   );
-=======
-import React from "react";
-
-const Dashboard = () => {
-  return <div>Dashboard</div>;
->>>>>>> 25379cf (starting to build frontend)
 };
 
 export default Dashboard;

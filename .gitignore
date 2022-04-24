@@ -1,8 +1,4 @@
 pg_data/
 .vscode/
-<<<<<<< HEAD
 .env
 node_modules/
-=======
-.env
->>>>>>> 060e48e (initial commit)
