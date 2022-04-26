@@ -49,6 +49,7 @@ export const AuthProvider: React.FC = ({ children }) => {
       return response;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   };
 

@@ -85,6 +85,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(email, password);
     const { e, p } = loginSchema.validateSync(
       {
         e: email,
@@ -150,6 +151,8 @@ router.get("/me", async (req, res) => {
         error: "No user found with the provided id"
       });
     }
+
+    // res.setHeader("Access-Control-Allow-Origin", req.headers.origin as string);
 
     return res.json({
       error: false,

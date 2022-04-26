@@ -1,5 +1,5 @@
-import fetch, { Headers } from "cross-fetch";
-import FormData from "form-data";
+import { fetch as f, Headers as H } from "cross-fetch";
+import Form from "form-data";
 import * as fs from "fs";
 import { isNode } from "../utils/is-node";
 import { IUser } from "./types";
@@ -8,7 +8,9 @@ export class Client {
   private baseUrl = "http://localhost:4000/api/developer";
   private clientId: string;
   private clientSecret: string;
-  // private fetch = isNode() ? f : window.fetch;
+  protected fetch = isNode() ? f : window.fetch;
+  protected Headers = isNode() ? H : window.Headers;
+
   constructor({
     clientId,
     clientSecret,
@@ -40,7 +42,7 @@ export class Client {
       headers.append("clientId", this.clientId);
       headers.append("clientSecret", this.clientSecret);
       const res = await (
-        await fetch(`${this.baseUrl}/${action}${params}`, {
+        await this.fetch(`${this.baseUrl}/${action}${params}`, {
           method,
           headers: headers,
           body: body,
@@ -49,7 +51,7 @@ export class Client {
       console.log(res);
       return res;
     } else {
-      const headers = new Headers();
+      const headers = new this.Headers();
       headers.append("clientId", this.clientId);
       headers.append("clientSecret", this.clientSecret);
       const res = await (
@@ -67,8 +69,8 @@ export class Client {
     if (isNode() && typeof file === "string") {
       const f = fs.createReadStream(file);
 
-      const form = new FormData();
-      form.append("files", f, { filename: "test.jpg" });
+      const form = new Form();
+      form.append("files", f as any, { filename: "favicon" });
 
       const res = await this.makeRequest({
         method: "POST",
@@ -78,6 +80,17 @@ export class Client {
       });
       console.log(res);
       // return res;
+    } else {
+      const form = new window.FormData();
+      form.append("files", file);
+
+      const res = await this.makeRequest({
+        method: "POST",
+        body: form,
+        action: "upload",
+        isJson: false,
+      });
+      console.log(res);
     }
   }
 

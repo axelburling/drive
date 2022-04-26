@@ -25,7 +25,17 @@ const server = createServer(app);
 export const io = new Server(server);
 
 app.use(express.json());
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+app.use(
+  cors({
+    origin: (req) => {
+      if (!req) {
+        return process.env.FRONTEND_URL;
+      }
+      return req;
+    },
+    credentials: true
+  })
+);
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(

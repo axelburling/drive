@@ -224,6 +224,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
 router.get("/user", isLoggedIn, async (req, res) => {
   try {
     const { clientid, clientsecret } = await getHeaders(req);
+    console.log(clientid, clientsecret);
 
     if (
       !clientid ||
@@ -240,7 +241,7 @@ router.get("/user", isLoggedIn, async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { posts: true, apikeys: true }
+      include: { posts: { take: 10 }, apikeys: true }
     });
 
     if (!user) {

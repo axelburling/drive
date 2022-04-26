@@ -21,7 +21,7 @@ const Home: NextPage = () => {
     // <Routes>
     //   <Route path="/" element={<Login />} />
     // </Routes>
-    <h1>hello</h1>
+    <></>
   );
 };
 

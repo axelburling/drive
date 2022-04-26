@@ -55,13 +55,13 @@ export class Client {
         throw new Error("No data in response");
       }
       if (!res.ok) {
-        throw new Error(resBody);
+        throw new Error(resBody.message);
       }
       return resBody;
     } catch (error) {
       console.error("we got an error!");
       console.log(error);
-      throw new Error();
+      throw new Error(error as any);
     }
   }
 }
