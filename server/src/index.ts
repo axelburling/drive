@@ -27,15 +27,15 @@ export const io = new Server(server);
 app.use(express.json());
 app.use(
   cors({
-    origin: (req) => {
-      if (!req) {
-        return process.env.FRONTEND_URL;
-      }
-      return req;
-    },
+    origin: process.env.FRONTEND_URL,
     credentials: true
   })
 );
+
+app.get("/api", (req, res) => {
+  return res.json("Hello World!");
+});
+
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(
@@ -55,7 +55,7 @@ app.use("/api/cli", cli);
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
-  const token = genSecret().replace(/[^a-zA-Z0-9 ]/g, "");
+  const token = genSecret({ length: 45 }).replace(/[^a-zA-Z0-9 ]/g, "");
   sockets.set(token, socket.id);
 
   socket.emit("token", { token });
@@ -64,8 +64,10 @@ io.on("connection", (socket) => {
   });
 });
 
-const port = process.env.SERVER_PORT || 3000;
+const port = Number(process.env.SERVER_PORT) || 4000;
+
+console.log(port);
 
 server.listen(port, () =>
-  console.log(`Server is running on  http://localhost:${port}`)
+  console.log(`Server is running on http://localhost:${port}`)
 );

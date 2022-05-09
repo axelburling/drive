@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 
-const genSecret = () => {
-  return randomBytes(45)
+const genSecret = ({ length = 45 }: { length?: number }) => {
+  return randomBytes(length)
     .toString("base64")
     .replace("a", randomBytes(5).toString("base64"));
 };

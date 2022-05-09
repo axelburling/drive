@@ -12,7 +12,6 @@ import {
   InputRightElement,
   Link,
   Stack,
-  useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
@@ -20,13 +19,11 @@ import { FaLock } from "react-icons/fa";
 import { FiMail } from "react-icons/fi";
 import IsLoggedIn from "../components/isLoggedIn";
 import { AuthContext } from "../context/authContext";
-import { IResponse } from "../types/types";
 
 const CFaUserAlt = chakra(FiMail);
 const CFaLock = chakra(FaLock);
 
 const Login = () => {
-  const toast = useToast();
   const { login } = useContext(AuthContext)!;
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -44,20 +41,12 @@ const Login = () => {
     console.log(email, password);
     try {
       const idk = await login({ email, password });
-      console.log(idk);
       if (idk && idk.token && !idk.error) {
         console.log(idk);
         router.push("/dashboard");
       }
     } catch (error) {
       console.log(error);
-      toast({
-        title: "Error",
-        description: (error as IResponse).message,
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-      });
     }
     setEmail("");
     setPassword("");

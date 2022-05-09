@@ -19,7 +19,7 @@ import Logo from "../assets/logo.svg";
 import { IUser } from "../types/types";
 // import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
-const Links = ["Profile", "Developer", "Settings"];
+const Links = ["Profile", "Developer"];
 
 const NavLink = ({ path, children }: { path: string; children: ReactNode }) => (
   <Link

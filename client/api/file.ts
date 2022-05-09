@@ -26,4 +26,14 @@ export class FileClient extends Client {
     });
     return res;
   }
+
+  public async downloadFile(id: string): Promise<Blob> {
+    const res = await this.makeRequest<Blob>({
+      method: "GET",
+      route: "posts",
+      action: `download/${id}`,
+      isFile: true,
+    });
+    return res;
+  }
 }

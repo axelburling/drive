@@ -34,7 +34,7 @@ router.get("/", isLoggedIn, async (req, res) => {
     }
 
     const clientId = cryptr.encrypt(user.id);
-    const secret = genSecret();
+    const secret = genSecret({ length: 100 });
 
     const key = await prisma.apiKey.create({
       data: {
@@ -73,17 +73,6 @@ router.post("/reset", isLoggedIn, async (req, res) => {
     }
 
     const { apikey } = req.body;
-    // prisma.apiKey.create({
-    //   data: {
-    //     clientId: apikey.clientId,
-    //     clientSecret: apikey.clientSecret,
-    //     owner: {
-    //       connect: {
-    //         id
-    //       }
-    //     }
-    //   }
-    // });
     const key = await prisma.apiKey.findFirst({
       where: {
         id: apikey,
@@ -98,7 +87,7 @@ router.post("/reset", isLoggedIn, async (req, res) => {
       });
     }
 
-    const newSecret = genSecret();
+    const newSecret = genSecret({ length: 100 });
 
     const newkey = await prisma.apiKey.update({
       where: {

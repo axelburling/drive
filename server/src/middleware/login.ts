@@ -11,7 +11,7 @@ const cryptr = new Cryptr(secret);
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
   const { clientid, clientsecret } = req.headers;
 
-  if (clientid || clientsecret) {
+  if (clientid && clientsecret && req.baseUrl.includes("developer")) {
     if (typeof clientid === "string" && typeof clientsecret === "string") {
       const id = cryptr.decrypt(clientid);
 

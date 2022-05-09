@@ -321,4 +321,42 @@ router.post("/addFolder", async (req, res) => {
   }
 });
 
+router.get("/download/:id", isLoggedIn, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post: Post | null = await prisma.post.findUnique({
+      where: {
+        id
+      }
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "No posts found", error: true });
+    }
+    const idk = post.url.split("/");
+    const fileName = idk[idk.length - 1];
+    console.log(fileName);
+    // console.log(path.join(__dirname, `../../drive/${post.ownerId}/${id}`));
+
+    // const file = fs.readFileSync(
+    //   path.join(__dirname, `../../drive/${post.ownerId}/${fileName}`)
+    // );
+    // return res.(
+    //   path.join(__dirname, `../../drive/${post.ownerId}/${fileName}`)
+    // );
+    res.setHeader("Content-Disposition", post.name);
+    return res.download(
+      path.join(__dirname, `../../drive/${post.ownerId}/${fileName}`)
+    );
+    // res.write(file, 'binary');
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+      error: true
+    });
+  }
+});
+
 export default router;

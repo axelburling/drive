@@ -1,11 +1,27 @@
-import { Box, Grid, GridItem, Image, Stack, Text } from "@chakra-ui/react";
-import React from "react";
+import {
+  Box,
+  Button,
+  Grid,
+  GridItem,
+  Image,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
+import React, { useContext } from "react";
+import { FileContext } from "../context/fileContext";
 import { IPost } from "../types/types";
 
 const IMAGE =
   "https://images.unsplash.com/photo-1518051870910-a46e30d9db16?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80";
 
 const MainWin = ({ posts }: { posts: IPost[] | null }) => {
+  const { download } = useContext(FileContext)!;
+  const toast = useToast();
   return (
     <Box h="calc(100vh - 70px)">
       {posts ? (
@@ -19,10 +35,46 @@ const MainWin = ({ posts }: { posts: IPost[] | null }) => {
               border="1px"
               borderRadius="md"
             >
-              <Stack spacing={4}>
-                <Image borderTopRadius="md" src={IMAGE}></Image>
-                <Text size="sm">{post.name}</Text>
-              </Stack>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  // rounded={"full"}
+                  variant={"link"}
+                  cursor={"pointer"}
+                  // minW={0}
+                >
+                  <Stack spacing={4}>
+                    <Image borderTopRadius="md" src={IMAGE}></Image>
+                    <Text size="xs">{post.name.substring(0, 15)}</Text>
+                  </Stack>
+                </MenuButton>
+                <MenuList>
+                  <MenuItem
+                    onClick={async () => {
+                      const res = await download(post.id, post.name);
+                      if (!res) {
+                        toast({
+                          title: "Error",
+                          description: "File could not be downloaded",
+                          status: "error",
+                          duration: 5000,
+                          isClosable: true,
+                        });
+                      } else {
+                        toast({
+                          title: res,
+                          description: "File downloaded successfully",
+                          status: "success",
+                          duration: 5000,
+                          isClosable: true,
+                        });
+                      }
+                    }}
+                  >
+                    Download
+                  </MenuItem>
+                </MenuList>
+              </Menu>
             </GridItem>
           ))}
         </Grid>

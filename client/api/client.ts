@@ -8,6 +8,7 @@ interface RestRequestOptions {
   action?: string;
   query?: string;
   type?: "json" | "formData";
+  isFile?: boolean;
 }
 
 export class Client {
@@ -20,6 +21,7 @@ export class Client {
     action,
     query,
     type = "json",
+    isFile = false,
   }: RestRequestOptions): Promise<T> {
     try {
       console.log(process.env);
@@ -50,11 +52,16 @@ export class Client {
       if (!res) {
         throw new Error("No response from server");
       }
-      const resBody = await res.json();
+      let resBody: any;
+      if (isFile) {
+        resBody = await res.blob();
+      } else {
+        resBody = await res.json();
+      }
       if (!resBody) {
         throw new Error("No data in response");
       }
-      if (!res.ok) {
+      if (!res.ok && !isFile) {
         throw new Error(resBody.message);
       }
       return resBody;

@@ -8,6 +8,8 @@ import prisma from "../utils/prisma";
 
 const router = Router();
 
+// const verifiers = new Map<string, string>();
+
 const registerSchema = yup.object().shape({
   n: yup.string().min(3).max(255).required(),
   p: yup.string().min(3).max(255).required(),
@@ -63,6 +65,29 @@ router.post("/register", async (req, res) => {
 
     setCookie(req, res, token);
 
+    // const special = genSecret({ length: 70 }).replace(/[^a-zA-Z0-9 ]/g, "");
+
+    // verifiers.set(special, token);
+
+    // const mail = await sendMail({
+    //   to: user.email,
+    //   subject: "Verify your email",
+    //   encoding: "utf-8",
+    //   text: "Verify your email",
+    //   html: `<a href="${process.env.FRONTEND_URL}/verify/${special}">Verify your email</a>`
+    // });
+
+    // console.log(mail);
+
+    // if (mail.rejected.length > 0) {
+    //   console.log(mail.rejected);
+    //   await prisma.user.delete({ where: { id: user.id } });
+    //   return res.status(500).json({
+    //     error: true,
+    //     message: "Failed to send email account deleted"
+    //   });
+    // }
+
     return res
       .json({
         error: false,
@@ -84,6 +109,7 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    console.log(req.body);
     const { email, password } = req.body;
     console.log(email, password);
     const { e, p } = loginSchema.validateSync(
@@ -122,6 +148,10 @@ router.post("/login", async (req, res) => {
       .status(500)
       .json({ message: "Internal server error", error: true });
   }
+});
+
+router.get("/verify/:id", async (req, res) => {
+  return res.json("test");
 });
 
 router.get("/me", async (req, res) => {

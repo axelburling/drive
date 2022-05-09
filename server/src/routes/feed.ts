@@ -24,7 +24,7 @@ router.get("/", isLoggedIn, async (req, res) => {
       }
     });
     posts = posts.sort((p1: Post, p2: Post) => {
-      return p1.createdAt.getSeconds() - p2.createdAt.getSeconds();
+      return p1.updatedAt.getSeconds() - p2.updatedAt.getSeconds();
     });
 
     return res.json({
