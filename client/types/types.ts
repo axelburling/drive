@@ -14,6 +14,7 @@ export interface IPost {
   name: string;
   createdAt: string;
   ownerId: string;
+  size: string;
   viewers: string[];
 }
 

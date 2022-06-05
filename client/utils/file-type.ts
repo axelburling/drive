@@ -1,52 +1,66 @@
 import { IPost } from "../types/types";
+import { extend } from "./extend-ext";
 
 const fileTypes = {
-  jpg: "",
-  jpeg: "",
-  png: "",
-  ts: "",
-  gif: "",
-  svg: "",
-  bmp: "",
-  tiff: "",
-  webp: "",
-  ico: "",
-  mp4: "",
-  mp3: "",
-  wav: "",
-  json: "",
-  js: "",
-  jsx: "",
-  css: "",
-  html: "",
-  tsx: "",
-  md: "",
-  yml: "",
-  yaml: "",
-  xml: "",
+  unknown: require("../assets/unknown.png").default.src,
 };
 
-const postToImage = (post: IPost) => {
-  const { url } = post;
-  const ext = url.split(".")[1];
-  if (ext) {
-    console.log(
-      Object.keys(fileTypes).find((key) => {
-        if (key === ext) {
-          return true;
-        }
-      })
-    );
+function isImage(extension: string) {
+  return [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "webp",
+    "svg",
+    "ico",
+    "psd",
+    "ai",
+  ].includes(extension);
+}
+
+function isVideo(extension: string) {
+  return [
+    "mp4",
+    "m4v",
+    "mov",
+    "avi",
+    "wmv",
+    "mpg",
+    "flv",
+    "3gp",
+    "mkv",
+    "webm",
+  ].includes(extension);
+}
+
+const postToImage = (post: IPost): any => {
+  try {
+    const { url } = post;
+    const ext = url.slice(url.lastIndexOf(".") + 1, url.length);
+    if (isImage(ext)) {
+      return "https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/icons/image.svg";
+    } else if (isVideo(ext)) {
+      return "https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/icons/video.svg";
+    } else if (
+      ext.endsWith("script") ||
+      ext.endsWith("js") ||
+      ext.endsWith("ts")
+    ) {
+      return `https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/icons/${extend(
+        ext
+      )}.svg`;
+    } else if (ext.endsWith("sx")) {
+      return "https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/icons/react.svg";
+    } else if (ext) {
+      return `https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/icons/${ext}.svg`;
+    } else {
+      return fileTypes.unknown;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
-postToImage({
-  id: "1",
-  url: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
-  name: "google",
-  createdAt: "2020-01-01",
-  ownerId: "1",
-  viewers: ["1", "2"],
-});
-
-export { postToImage, fileTypes };
+export { postToImage };

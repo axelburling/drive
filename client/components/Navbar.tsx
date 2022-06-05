@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Button,
+  chakra,
   Flex,
   HStack,
   IconButton,
@@ -12,14 +13,21 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Switch,
+  useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import Logo from "../assets/logo.svg";
 import { IUser } from "../types/types";
+
 // import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
-const Links = ["Profile", "Developer", "Settings"];
+const Links = ["Avatar", "Developer"];
+
+const DarkModeIcon = chakra(MdDarkMode);
+const LightModeIcon = chakra(MdLightMode);
 
 const NavLink = ({ path, children }: { path: string; children: ReactNode }) => (
   <Link
@@ -46,7 +54,22 @@ export default function Navbar({
   fileChange?: (e: React.ChangeEvent<HTMLInputElement>) => any;
 }) {
   // const { isOpen, onOpen, onClose } = useDisclosure();
+  const { toggleColorMode } = useColorMode();
+  const [isChecked, setIsChecked] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
+
+  const onChangeMode = (e: React.ChangeEvent<HTMLInputElement>) => {
+    toggleColorMode();
+    setIsChecked(e.target.checked);
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("checked")) {
+      setIsChecked(
+        localStorage.getItem("chakra-ui-color-mode") === "dark" ? true : false
+      );
+    }
+  }, []);
 
   return (
     <>
@@ -135,6 +158,13 @@ export default function Navbar({
                   {link}
                 </NavLink>
               ))}
+              <LightModeIcon />
+              <Switch
+                size="md"
+                isChecked={isChecked}
+                onChange={(e) => onChangeMode(e)}
+              ></Switch>
+              <DarkModeIcon />
             </HStack>
           </HStack>
           <Flex alignItems={"center"} zIndex={10000000}>
@@ -149,11 +179,7 @@ export default function Navbar({
                 <Avatar
                   size={"md"}
                   marginRight={1}
-                  src={
-                    user && user.avatar
-                      ? user.avatar
-                      : "https://bit.ly/sage-avatar"
-                  }
+                  src={user && user.avatar ? user.avatar : undefined}
                 />
               </MenuButton>
               <MenuList zIndex={100}>

@@ -8,7 +8,6 @@ const ProtectedRoute = ({ children }: { children: any }) => {
 
   useEffect(() => {
     me().then((res) => {
-      console.log(res);
       if (res && !res.error) {
         router.push(router.route ? router.route : "/dashboard");
       } else {

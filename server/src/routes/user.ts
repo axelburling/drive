@@ -17,6 +17,7 @@ router.post(
     try {
       const token = await getCookie(req);
       const id = (await verifyAccessToken(token)) as string;
+      console.log(req.files);
 
       if (!req.files || !req.files.avatar) {
         return res.json({
@@ -100,6 +101,8 @@ router.post(
         });
       }
 
+      console.log("do we get here?");
+
       const idk = await prisma.user.update({
         where: {
           id
@@ -125,6 +128,10 @@ router.post(
       });
     } catch (error) {
       console.error(error);
+      return res.json({
+        error: true,
+        message: "Internal server error"
+      });
     }
   }
 );

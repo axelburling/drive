@@ -4,6 +4,7 @@ import fs from "fs";
 import * as path from "path";
 import isLoggedIn from "../middleware/login";
 import { getCookie } from "../utils/cookie";
+import prettifyBytes from "../utils/file-size";
 import { getHeaders } from "../utils/headers";
 import { verifyAccessToken } from "../utils/jwt";
 import prisma, { Post } from "../utils/prisma";
@@ -53,12 +54,15 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       const posts: Post[] = [];
       req.files.files.map(async (file) => {
         await file.mv(`./drive/${id}/${file.md5}${path.extname(file.name)}`);
+        const size = prettifyBytes(file.size, { binary: true });
+        console.log(size);
         const post = await prisma.post.create({
           data: {
             url: `${req.protocol}://${req.hostname}:${
               process.env.SERVER_PORT
             }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
             name: file.name,
+            size,
             owner: {
               connect: {
                 id
@@ -76,13 +80,15 @@ router.post("/upload", isLoggedIn, async (req, res) => {
     } else if (typeof req.files.files === "object") {
       const { files } = req.files;
       await files.mv(`./drive/${id}/${files.md5}${path.extname(files.name)}`);
-      console.log("get here");
+      const size = prettifyBytes(files.size, { binary: true });
+      console.log(size);
       const post = await prisma.post.create({
         data: {
           url: `${req.protocol}://${req.hostname}:${
             process.env.SERVER_PORT
           }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
           name: files.name,
+          size,
           owner: {
             connect: {
               id

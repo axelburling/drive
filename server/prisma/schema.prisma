@@ -26,6 +26,7 @@ model Post {
   name String @default("")
   url String
   createdAt DateTime @default(now())
+  size String @default("")
   owner User @relation(fields: [ownerId], references: [id])
   ownerId String
   viewers String[]
