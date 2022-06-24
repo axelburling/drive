@@ -1,6 +1,5 @@
 import Cryptr from "cryptr";
 import { NextFunction, Request, Response } from "express";
-import { getCookie } from "../utils/cookie";
 import { verifyAccessToken } from "../utils/jwt";
 import prisma from "../utils/prisma";
 
@@ -48,29 +47,22 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
       next();
     }
   } else {
-    const token = await getCookie(req);
-    if (!token) {
+
+    const userID = await verifyAccessToken(req);
+    console.log(userID)
+    if (!userID || typeof userID !== "string") {
       return res.status(401).json({
-        error: "No token provided."
+        error: "Invalid token type."
       });
     }
+    const user = await prisma.user.findUnique({ where: { id: userID } });
 
-    if (typeof token === "string") {
-      const userID = await verifyAccessToken(token);
-      if (!userID || typeof userID !== "string") {
-        return res.status(401).json({
-          error: "Invalid token."
-        });
-      }
-      const user = await prisma.user.findUnique({ where: { id: userID } });
-
-      if (!user) {
-        return res.status(401).json({
-          error: "User does not exist."
-        });
-      }
-      next();
+    if (!user) {
+      return res.status(401).json({
+        error: "User does not exist."
+      });
     }
+    next();
   }
 };
 

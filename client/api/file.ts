@@ -14,7 +14,18 @@ export class FileClient extends Client {
     return res;
   }
 
-  public async uploadFile(file: any): Promise<any> {
+  public async getSharedPosts(): Promise<IPostResponse> {
+    const res = await this.makeRequest<IPostResponse>({
+      method: 'GET',
+      route: 'feed',
+      action: 'sharedPosts'
+    })
+
+    return res;
+  }
+
+
+  public async uploadFile(file: File): Promise<any> {
     const FD = new FormData();
     FD.append("files", file);
     const res = await this.makeRequest<IPostResponse>({

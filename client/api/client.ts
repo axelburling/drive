@@ -22,29 +22,25 @@ export class Client {
     type = "json",
   }: RestRequestOptions): Promise<T> {
     try {
-      console.log(process.env);
       action = action ? `/${action}` : "";
       query = query === undefined ? "" : `/?type=${query}`;
-      console.log(data);
+      const head: Record<string, string> = {}
+      head["Access-Control-Allow-Origin"] = process.env.NEXT_PUBLIC_FRONTEND_URL as string
       let res;
       if (type === "json") {
+        head['Content-Type'] = "application/json"
         res = await fetch(`${this.baseUrl}/${route}${action}${query}`, {
           method,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": `${process.env.NEXT_PUBLIC_FRONTEND_URL}`,
-          },
-          body: JSON.stringify(data),
+          headers: head,
           credentials: "include",
+          body: JSON.stringify(data),
         });
       } else if (type === "formData") {
         res = await fetch(`${this.baseUrl}/${route}${action}${query}`, {
           method,
-          headers: {
-            "Access-Control-Allow-Origin": `${process.env.NEXT_PUBLIC_FRONTEND_URL}`,
-          },
-          body: data as FormData,
+          headers: head,
           credentials: "include",
+          body: data as FormData,
         });
       }
       if (!res) {

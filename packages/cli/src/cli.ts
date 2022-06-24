@@ -3,7 +3,6 @@
 import chalk from "chalk";
 import { rainbow } from "chalk-animation";
 import { ChildProcess } from "child_process";
-import { Spinner } from "cli-spinner";
 import { Command } from "commander";
 import fetch, { Headers } from "cross-fetch";
 import FormData from "form-data";
@@ -32,7 +31,6 @@ export interface IPost {
   name?: string;
 }
 const program = new Command();
-const spiner = new Spinner();
 
 program
   .name("Adrive")
@@ -47,19 +45,22 @@ program
     let o: ChildProcess;
 
     rain.start();
-    spiner.start();
-    const socket = io("http://localhost:4000");
-
-    socket.on("connect", () => {
-      console.log(chalk.green("Connected to server"));
+    const socket = io("http://localhost:4000", {
+      auth: {
+        type: "CLI",
+      },
     });
+
+    // socket.on("connect", () => {
+    //   console.log(chalk.green("Connected to server"));
+    // });
 
     socket.on("token", async ({ token }) => {
       o = await open(`http://localhost:3000/cli?token=${token}`);
+      console.log(chalk.red('If it did not open automatically press or copy the link below:'), '\n', chalk.blue(`${`http://localhost:3000/cli?token=${token}`}`))
     });
 
     socket.on("info", async ({ apikeys }: { apikeys: IApiKey[] }) => {
-      spiner.stop();
       if (apikeys.length === 0) {
         console.log(chalk.red("No API keys found"));
         return;
@@ -70,14 +71,13 @@ program
             .sort((a, b) => b.usage - a.usage)
             .map((apikey) => {
               return {
-                name: `${apikey.clientId.substring(0, 20)} (${
-                  apikey.usage
-                } usage)`,
+                name: `${apikey.clientId.substring(0, 20)} (${apikey.usage
+                  } usage)`,
                 value: {
                   clientId: apikey.clientId,
                   clientSecret: apikey.clientSecret,
                 },
-              };
+              };  
             }),
           type: "list",
           name: "apikey",
@@ -102,12 +102,12 @@ program
       process.exit(0);
     });
 
-    socket.on("disconnect", () => {
-      rain.stop();
-      spiner.stop();
-      console.log(chalk.red("Login failed due to redis connection"));
-      process.exit(1);
-    });
+    // socket.on("disconnect", () => {
+    //   rain.stop();
+    //   spiner.stop();
+    //   console.log(chalk.red("Login failed due to redis connection"));
+    //   process.exit(1);
+    // });
   });
 
 program

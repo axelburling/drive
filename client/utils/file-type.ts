@@ -35,6 +35,16 @@ function isVideo(extension: string) {
   ].includes(extension);
 }
 
+type Types = "image" | "video" | "text";
+
+export const extToType = (ext: string | undefined): Types => {
+  // console.log(ext);
+  if (!ext) return "text";
+  if (isImage(ext)) return "image";
+  if (isVideo(ext)) return "video";
+  return "text";
+};
+
 const postToImage = (post: IPost): any => {
   try {
     const { url } = post;

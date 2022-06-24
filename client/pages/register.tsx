@@ -58,7 +58,7 @@ const Register = () => {
       flexDirection="column"
       width="100wh"
       height="100vh"
-      backgroundColor="gray.200"
+      // backgroundColor="gray.200"
       justifyContent="center"
       alignItems="center"
     >
@@ -73,7 +73,7 @@ const Register = () => {
             <Stack
               spacing={4}
               p="1rem"
-              backgroundColor="whiteAlpha.900"
+              // backgroundColor="whiteAlpha.900"
               boxShadow="lg"
             >
               <FormControl>

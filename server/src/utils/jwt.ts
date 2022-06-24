@@ -1,37 +1,48 @@
+import { Request } from 'express';
+import * as fs from 'fs';
 import jwt from "jsonwebtoken";
+import { getCookie } from './cookie';
 
-const test_key =
-  "500d810ac0a90ed49c16029f8b5925a4c38c758502321b225e4f8aac1c9934d09410ed79587b4fb000ea8be681866307f46948eca1bfb3f644e8a1af74198d9b";
+const privateKey = fs.readFileSync('./keypair.pem').toString('utf8')
+export const publicKey = fs.readFileSync('publickey.crt').toString('utf8')
 
-const createAccessToken = (userID: string) => {
-  return jwt.sign({ userID }, test_key, {
-    expiresIn: "25d"
+
+const createAccessToken = (user: { id: string; name: string }) => {
+  const token = jwt.sign({ user }, privateKey, {
+    expiresIn: "25d",
+    algorithm: "RS512"
   });
+  return `Bearer ${token}`
 };
 
 const createRefreshToken = (userID: string) => {
-  return jwt.sign({ userID }, test_key, {
-    expiresIn: "30min"
+  return jwt.sign({ userID }, privateKey, {
+    expiresIn: "30min",
+    algorithm: "RS512"
   });
 };
 
 const verifyAccessToken = (
-  token: string
-): Promise<string | jwt.JwtPayload | undefined> => {
+  req: Request
+): Promise<string> => {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, test_key, (err, decoded) => {
-      if (err) {
-        reject(err);
-      } else {
-        if (!decoded) {
-          reject("Invalid token");
-        } else if (typeof decoded === "string") {
-          resolve(decoded);
+    const cookie = getCookie(req)
+    if (cookie) {
+      jwt.verify(cookie.slice(7, cookie.length) || '', publicKey, (err, decoded) => {
+        if (err) {
+          console.error(err)
+          reject(err);
         } else {
-          resolve(decoded.userID);
+          if (!decoded || typeof decoded === 'string' || typeof decoded.user.id !== 'string') {
+            reject("Invalid token");
+          } else {
+            resolve(decoded.user.id as string);
+          }
         }
-      }
-    });
+      });
+    } else {
+      reject("No authorization header was provided")
+    }
   });
 };
 

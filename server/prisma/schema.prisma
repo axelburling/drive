@@ -17,6 +17,7 @@ model User {
   email String
   password String
   avatar String?
+  sharedposts String[]
   posts Post[]
   apikeys ApiKey[]
 }
@@ -34,6 +35,7 @@ model Post {
 
 model ApiKey {
   id String @id @default(uuid())
+  name String @default("")
   clientId String
   clientSecret String
   usage Int @default(0)

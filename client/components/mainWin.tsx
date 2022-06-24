@@ -9,8 +9,9 @@ import {
   Th,
   Thead,
   Tr,
+  useColorMode,
 } from "@chakra-ui/react";
-import React from "react";
+import { useRouter } from "next/router";
 import { IPost } from "../types/types";
 import { postToImage } from "../utils/file-type";
 
@@ -18,6 +19,8 @@ import { postToImage } from "../utils/file-type";
 // "https://images.unsplash.com/photo-1518051870910-a46e30d9db16?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80";
 
 const MainWin = ({ posts }: { posts: IPost[] | null }) => {
+  const router = useRouter();
+  const { colorMode } = useColorMode();
   return (
     <Box h="calc(100vh - 70px)">
       {posts ? (
@@ -41,13 +44,32 @@ const MainWin = ({ posts }: { posts: IPost[] | null }) => {
             <Tbody>
               {posts.map((post: IPost) => {
                 const img = postToImage(post);
+                const date = new Date(post.createdAt);
                 return (
-                  <Tr key={post.id}>
+                  <Tr
+                    _hover={{
+                      backgroundColor:
+                        colorMode === "light" ? "blackAlpha.500" : "gray.700",
+                    }}
+                    key={post.id}
+                    onClick={async () => {
+                      console.log(post.id);
+                      const suc = await router.push({
+                        pathname: "/file/[id]",
+                        query: { id: post.id },
+                        href: `/file/${post.id}`,
+                      });
+                      console.log(suc);
+                    }}
+                  >
                     <Td>
                       <Image src={img} alt="post_type" h="4rem" w="4rem" />
                     </Td>
                     <Td>{post.name}</Td>
-                    <Td>{post.createdAt}</Td>
+                    <Td>{`${post.createdAt.slice(
+                      0,
+                      10
+                    )} ${date.getHours()}:${date.getMinutes()}`}</Td>
                     <Td>{post.size}</Td>
                   </Tr>
                 );

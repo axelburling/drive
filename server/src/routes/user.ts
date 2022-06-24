@@ -3,7 +3,7 @@ import fs from "fs";
 import Jimp from "jimp";
 import path from "path";
 import isLoggedIn from "../middleware/login";
-import { getCookie } from "../utils/cookie";
+import { decrypt, encrypt } from '../utils/crypto';
 import isImage from "../utils/is-image";
 import { verifyAccessToken } from "../utils/jwt";
 import prisma from "../utils/prisma";
@@ -15,8 +15,8 @@ router.post(
   isLoggedIn,
   async (req: Request, res: Response) => {
     try {
-      const token = await getCookie(req);
-      const id = (await verifyAccessToken(token)) as string;
+      // const token = await getCookie(req);
+      const id = (await verifyAccessToken(req)) as string;
       console.log(req.files);
 
       if (!req.files || !req.files.avatar) {
@@ -33,6 +33,13 @@ router.post(
         }
       });
 
+      if (!user) {
+        return res.json({
+          error: true,
+          message: "No user was found",
+        })
+      }
+
       if (!user || !user.avatar) {
         if (!fs.existsSync(`./drive/${id}/meta`)) {
           fs.mkdirSync(`./drive/${id}/meta`);
@@ -46,6 +53,7 @@ router.post(
           });
         }
       }
+      const fileName = encrypt(user.id)
 
       if (!Array.isArray(avatar)) {
         if (!isImage(avatar.name)) {
@@ -54,18 +62,20 @@ router.post(
             message: "File is not an image"
           });
         }
+
+
         await avatar.mv(
-          `./drive/${id}/meta/temp-${avatar.md5}${path.extname(avatar.name)}`
+          `./drive/${id}/meta/temp-${fileName}${path.extname(avatar.name)}`
         );
 
         await (
           await Jimp.read(
-            `./drive/${id}/meta/temp-${avatar.md5}${path.extname(avatar.name)}`
+            `./drive/${id}/meta/temp-${fileName}${path.extname(avatar.name)}`
           )
         )
           .resize(64, 64)
           .write(
-            `./drive/${id}/meta/${avatar.md5}${path.extname(avatar.name)}`,
+            `./drive/${id}/meta/${fileName}${path.extname(avatar.name)}`,
             (err) => {
               if (err) {
                 console.error(err);
@@ -74,7 +84,7 @@ router.post(
           );
 
         fs.unlinkSync(
-          `./drive/${id}/meta/temp-${avatar.md5}${path.extname(avatar.name)}`
+          `./drive/${id}/meta/temp-${fileName}${path.extname(avatar.name)}`
         );
 
         if (user) {
@@ -83,9 +93,8 @@ router.post(
               id
             },
             data: {
-              avatar: `${req.protocol}://${req.hostname}:${
-                process.env.SERVER_PORT
-              }/api/users/avatar/${avatar.md5}${path.extname(avatar.name)}`
+              avatar: `${req.protocol}://${req.hostname}:${process.env.SERVER_PORT
+                }/api/users/avatar/${fileName}${path.extname(avatar.name)}`
             }
           });
           return res.json({
@@ -101,16 +110,14 @@ router.post(
         });
       }
 
-      console.log("do we get here?");
 
       const idk = await prisma.user.update({
         where: {
           id
         },
         data: {
-          avatar: `${req.protocol}://${req.hostname}:${
-            process.env.SERVER_PORT
-          }/api/users/avatar/${avatar.md5}${path.extname(avatar.name)}`
+          avatar: `${req.protocol}://${req.hostname}:${process.env.SERVER_PORT
+            }/api/users/avatar/${fileName}${path.extname(avatar.name)}`
         }
       });
 
@@ -139,25 +146,11 @@ router.post(
 router.get("/avatar/:id", isLoggedIn, async (req, res) => {
   try {
     const { id } = req.params;
-    const token = await getCookie(req);
 
-    const uid = (await verifyAccessToken(token)) as string;
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: uid
-      }
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        error: true,
-        message: "User not found"
-      });
-    }
+    const userId = decrypt((id as string).split('.')[0])
 
     if (
-      !fs.existsSync(path.join(__dirname, `../../drive/${user.id}/meta/${id}`))
+      !fs.existsSync(path.join(__dirname, `../../drive/${userId}/meta/${id}`))
     ) {
       return res.status(404).json({
         error: true,
@@ -166,7 +159,7 @@ router.get("/avatar/:id", isLoggedIn, async (req, res) => {
     }
 
     return res.sendFile(
-      path.join(__dirname, `../../drive/${user.id}/meta/${id}`)
+      path.join(__dirname, `../../drive/${userId}/meta/${id}`)
     );
   } catch (error) {
     console.log(error);

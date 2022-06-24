@@ -1,5 +1,6 @@
+import { Box } from '@chakra-ui/react';
 import { useRouter } from "next/router";
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
 
 const IsLoggedIn = ({ children }: { children: any }) => {
@@ -14,7 +15,7 @@ const IsLoggedIn = ({ children }: { children: any }) => {
     });
   }, []);
 
-  return <>{children}</>;
+  return <Box>{children}</Box>;
 };
 
 export default IsLoggedIn;

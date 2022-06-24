@@ -40,7 +40,7 @@ const Developer = () => {
 
   return (
     <ProtectedRoute>
-      <Navbar user={user} logout={logout} />
+      <Navbar />
       <Box
         marginTop={4}
         display="flex"

@@ -6,3 +6,8 @@ tmp/
 temp/
 drive/
 prisma/migrations
+
+
+publickey.crt
+keypair.pem
+*.sql

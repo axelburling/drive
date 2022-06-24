@@ -66,7 +66,7 @@ const Profile = () => {
 
   return (
     <ProtectedRoute>
-      <Navbar user={user} logout={logout}></Navbar>
+      <Navbar />
       <Box marginTop="2vh">
         <Box
           display="flex"

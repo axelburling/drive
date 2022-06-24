@@ -14,19 +14,19 @@ export class User extends Client {
     });
   }
 
-  public async resetKey(apiKeyID: string) {
+  public async resetKey(apiKeyID: string,) {
     return this.makeRequest<IApikeyResonpose | undefined>({
       method: "POST",
       route: "developer",
       action: "reset",
-      type: "json",
       data: {
         apikey: apiKeyID,
       },
+      type: "json",
     });
   }
 
-  public async uploadAvatar(file: File) {
+  public async uploadAvatar(file: File,) {
     const FD = new FormData();
     console.log(file);
     FD.append("avatar", file);
@@ -34,8 +34,8 @@ export class User extends Client {
       method: "POST",
       route: "users",
       action: "avatarUpload",
-      type: "formData",
       data: FD,
+      type: "formData",
     });
   }
 }

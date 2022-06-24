@@ -13,7 +13,7 @@ import {
   InputRightElement,
   Link,
   Stack,
-  useToast,
+  useToast
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
@@ -91,7 +91,7 @@ const Cli = () => {
       flexDirection="column"
       width="100wh"
       height="100vh"
-      backgroundColor="gray.200"
+      // backgroundColor="gray.200"
       justifyContent="center"
       alignItems="center"
     >
@@ -106,7 +106,7 @@ const Cli = () => {
             <Stack
               spacing={4}
               p="1rem"
-              backgroundColor="whiteAlpha.900"
+              // backgroundColor="whiteAlpha.900"
               boxShadow="lg"
             >
               <FormControl>

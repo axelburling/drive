@@ -44,7 +44,7 @@ export interface IUserResponse extends IResponse {
 }
 
 export interface IPostResponse extends IResponse {
-  post: IPost[];
+  posts: IPost[];
 }
 
 export interface IApikeyResonpose extends IResponse {

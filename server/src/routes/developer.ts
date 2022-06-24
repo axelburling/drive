@@ -2,7 +2,6 @@ import Cryptr from "cryptr";
 import { Router } from "express";
 import path from "path";
 import isLoggedIn from "../middleware/login";
-import { getCookie } from "../utils/cookie";
 import { genSecret } from "../utils/crypto";
 import { getHeaders } from "../utils/headers";
 import { verifyAccessToken } from "../utils/jwt";
@@ -15,15 +14,8 @@ const router = Router();
 
 router.get("/", isLoggedIn, async (req, res) => {
   try {
-    const token = await getCookie(req);
 
-    if (!token) {
-      return res.status(401).json({
-        error: "No token provided."
-      });
-    }
-
-    const id = (await verifyAccessToken(token)) as string;
+    const id = (await verifyAccessToken(req)) as string;
     const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user) {
@@ -61,8 +53,7 @@ router.get("/", isLoggedIn, async (req, res) => {
 
 router.post("/reset", isLoggedIn, async (req, res) => {
   try {
-    const token = await getCookie(req);
-    const id = (await verifyAccessToken(token)) as string;
+    const id = (await verifyAccessToken(req)) as string;
     const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user) {
@@ -73,17 +64,6 @@ router.post("/reset", isLoggedIn, async (req, res) => {
     }
 
     const { apikey } = req.body;
-    // prisma.apiKey.create({
-    //   data: {
-    //     clientId: apikey.clientId,
-    //     clientSecret: apikey.clientSecret,
-    //     owner: {
-    //       connect: {
-    //         id
-    //       }
-    //     }
-    //   }
-    // });
     const key = await prisma.apiKey.findFirst({
       where: {
         id: apikey,
@@ -171,9 +151,8 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         await file.mv(`./drive/${id}/${file.md5}${path.extname(file.name)}`);
         const post = await prisma.post.create({
           data: {
-            url: `${req.protocol}://${req.hostname}:${
-              process.env.SERVER_PORT
-            }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
+            url: `${req.protocol}://${req.hostname}:${process.env.SERVER_PORT
+              }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
             name: file.name,
             owner: {
               connect: {
@@ -196,9 +175,8 @@ router.post("/upload", isLoggedIn, async (req, res) => {
 
       const post = await prisma.post.create({
         data: {
-          url: `${req.protocol}://${req.hostname}:${
-            process.env.SERVER_PORT
-          }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
+          url: `${req.protocol}://${req.hostname}:${process.env.SERVER_PORT
+            }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
           name: files.name,
           owner: {
             connect: {

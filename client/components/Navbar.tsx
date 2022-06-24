@@ -8,7 +8,7 @@ import {
   IconButton,
   Image,
   InputGroup,
-  Link,
+  Link as Lin,
   Menu,
   MenuButton,
   MenuItem,
@@ -17,10 +17,12 @@ import {
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import Logo from "../assets/logo.svg";
-import { IUser } from "../types/types";
+import { AuthContext } from "../context/authContext";
+import Searchbar from "./searchbar";
 
 // import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
@@ -30,7 +32,7 @@ const DarkModeIcon = chakra(MdDarkMode);
 const LightModeIcon = chakra(MdLightMode);
 
 const NavLink = ({ path, children }: { path: string; children: ReactNode }) => (
-  <Link
+  <Lin
     px={2}
     py={1}
     rounded={"md"}
@@ -41,18 +43,20 @@ const NavLink = ({ path, children }: { path: string; children: ReactNode }) => (
     href={`/${path.toLowerCase()}`}
   >
     {children}
-  </Link>
+  </Lin>
 );
 
 export default function Navbar({
-  user,
-  logout,
+  onSearch,
   fileChange,
 }: {
-  user: IUser | null;
-  logout: () => Promise<void>;
+  onSearch?: (query: string) => void;
   fileChange?: (e: React.ChangeEvent<HTMLInputElement>) => any;
 }) {
+  const {
+    user: [user],
+    logout,
+  } = useContext(AuthContext)!;
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const { toggleColorMode } = useColorMode();
   const [isChecked, setIsChecked] = useState(false);
@@ -119,10 +123,12 @@ export default function Navbar({
                     <>File Upload</>
                   </InputGroup>
                 </MenuItem>
-                <MenuItem>Create a Copy</MenuItem>
-                <MenuItem>Mark as Draft</MenuItem>
+                <MenuItem>
+                  <Link href="/shared">Shared With Me</Link>
+                </MenuItem>
+                {/* <MenuItem>Mark as Draft</MenuItem>
                 <MenuItem>Delete</MenuItem>
-                <MenuItem>Attend a Workshop</MenuItem>
+                <MenuItem>Attend a Workshop</MenuItem> */}
               </MenuList>
             </Menu>
           ) : (
@@ -138,6 +144,7 @@ export default function Navbar({
               }}
             />
           )}
+          {onSearch ? <Searchbar onChange={(e) => onSearch(e)} /> : null}
           {/* <IconButton
             size={"md"}
             w="30px"
@@ -153,11 +160,13 @@ export default function Navbar({
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {Links.map((link) => (
-                <NavLink key={link} path={link}>
-                  {link}
-                </NavLink>
-              ))}
+              {onSearch
+                ? null
+                : Links.map((link) => (
+                    <NavLink key={link} path={link}>
+                      {link}
+                    </NavLink>
+                  ))}
               <LightModeIcon />
               <Switch
                 size="md"

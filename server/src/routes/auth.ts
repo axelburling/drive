@@ -2,7 +2,7 @@ import { compare, genSalt, hash } from "bcryptjs";
 import { Router } from "express";
 import * as fs from "fs";
 import * as yup from "yup";
-import { getCookie, setCookie } from "../utils/cookie";
+import { setCookie } from "../utils/cookie";
 import { createAccessToken, verifyAccessToken } from "../utils/jwt";
 import prisma from "../utils/prisma";
 
@@ -59,7 +59,10 @@ router.post("/register", async (req, res) => {
       }
     });
 
-    const token = createAccessToken(user.id);
+    const token = createAccessToken({
+      id: user.id,
+      name: user.name,
+    });
 
     setCookie(req, res, token);
 
@@ -68,7 +71,7 @@ router.post("/register", async (req, res) => {
         error: false,
         message: "User created",
         user,
-        token
+        token,
       })
       .status(200);
   } catch (error) {
@@ -103,7 +106,10 @@ router.post("/login", async (req, res) => {
         .json({ message: "Wrong password or email", error: true });
     }
     if (await compare(p, user.password)) {
-      const token = createAccessToken(user.id);
+      const token = createAccessToken({
+        id: user.id,
+        name: user.name,
+      });
 
       setCookie(req, res, token);
 
@@ -114,6 +120,7 @@ router.post("/login", async (req, res) => {
         .json({ message: "Wrong password or email", error: true });
     }
   } catch (error) {
+    console.log(error);
     if (error instanceof yup.ValidationError) {
       return res.status(400).json({ message: error.errors, error: true });
     }
@@ -125,21 +132,9 @@ router.post("/login", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    const token = await getCookie(req);
+    const id = (await verifyAccessToken(req)) as string;
 
-    if (!token) {
-      return res.status(401).json({
-        error: "No token provided."
-      });
-    }
-
-    if (typeof token !== "string") {
-      return res.status(401).json({
-        error: "Invalid token."
-      });
-    }
-
-    const id = (await verifyAccessToken(token)) as string;
+    console.log(id)
 
     const user = await prisma.user.findUnique({
       where: { id },

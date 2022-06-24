@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
@@ -21,7 +22,7 @@ const Home: NextPage = () => {
     // <Routes>
     //   <Route path="/" element={<Login />} />
     // </Routes>
-    <></>
+    <Box></Box>
   );
 };
 

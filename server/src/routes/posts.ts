@@ -15,11 +15,22 @@ const secret = process.env.SECRET || "vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3";
 
 const cryptr = new Cryptr(secret);
 
+const getPostByURL = async (ending: string) => {
+  const post = await prisma.post.findFirst({
+    where: {
+      url: {
+        endsWith: ending
+      }
+    }
+  });
+  return post;
+};
+
 router.post("/upload", isLoggedIn, async (req, res) => {
   try {
     let id: string;
     const { clientid, clientsecret } = getHeaders(req);
-    const token = await getCookie(req);
+    const token = getCookie(req)
 
     if (
       !token &&
@@ -27,7 +38,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       !clientsecret &&
       clientid.length === 0 &&
       clientsecret.length === 0 &&
-      typeof token !== "string"
+      typeof token !== 'string'
     ) {
       console.log("No token provided.");
       return res.json({
@@ -39,7 +50,7 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       id = cryptr.decrypt(clientid);
       console.log(id);
     } else {
-      id = (await verifyAccessToken(token)) as string;
+      id = (await verifyAccessToken(req));
     }
 
     if (!req.files) {
@@ -58,9 +69,8 @@ router.post("/upload", isLoggedIn, async (req, res) => {
         console.log(size);
         const post = await prisma.post.create({
           data: {
-            url: `${req.protocol}://${req.hostname}:${
-              process.env.SERVER_PORT
-            }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
+            url: `${req.protocol}://${req.hostname}:${process.env.SERVER_PORT
+              }/api/posts/drive/${file.md5}${path.extname(file.name)}`,
             name: file.name,
             size,
             owner: {
@@ -84,9 +94,8 @@ router.post("/upload", isLoggedIn, async (req, res) => {
       console.log(size);
       const post = await prisma.post.create({
         data: {
-          url: `${req.protocol}://${req.hostname}:${
-            process.env.SERVER_PORT
-          }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
+          url: `${req.protocol}://${req.hostname}:${process.env.SERVER_PORT
+            }/api/posts/drive/${files.md5}${path.extname(files.name)}`,
           name: files.name,
           size,
           owner: {
@@ -112,22 +121,9 @@ router.post("/upload", isLoggedIn, async (req, res) => {
 
 router.get("/drive/:id", isLoggedIn, async (req, res) => {
   try {
-    const id = req.params.id;
-    console.log(id);
-    const token = await getCookie(req);
+    const { id } = req.params;
 
-    if (!token) {
-      return res.status(401).json({
-        error: "No token provided."
-      });
-    }
-
-    if (typeof token !== "string") {
-      return res.status(401).json({
-        error: "Invalid token."
-      });
-    }
-    const userID = (await verifyAccessToken(token)) as string;
+    const userID = (await verifyAccessToken(req)) as string;
 
     if (!id) {
       return res
@@ -135,19 +131,26 @@ router.get("/drive/:id", isLoggedIn, async (req, res) => {
         .json({ message: "No file id provided", error: true });
     }
 
-    const post = await prisma.post.findUnique({
-      where: {
-        id
-      }
-    });
+    const post = (await getPostByURL(id)) as Post | null;
 
     if (!post) {
       return res.status(404).json({ message: "No posts found", error: true });
     }
 
+    if (
+      !fs.existsSync(path.join(__dirname, `../../drive/${post.ownerId}/${id}`))
+    ) {
+      return res.status(404).json({
+        error: true,
+        message: "File Not Found"
+      });
+    }
+
     if (post.viewers) {
       if (post.ownerId === userID || post.viewers.includes(userID)) {
-        return res.sendFile(path.join(`../../drive/${post.ownerId}/${id}`));
+        return res.sendFile(
+          path.join(__dirname, `../../drive/${post.ownerId}/${id}`)
+        );
       } else {
         return res.status(403).json({
           message: "You are not authorized to view this file",
@@ -157,7 +160,7 @@ router.get("/drive/:id", isLoggedIn, async (req, res) => {
     } else {
       if (post.ownerId === userID) {
         return res.sendFile(
-          path.join(__dirname, `../../drive/${userID}/${id}`)
+          path.join(__dirname, `../../drive/${post.ownerId}/${id}`)
         );
       } else {
         return res.status(403).json({
@@ -168,6 +171,9 @@ router.get("/drive/:id", isLoggedIn, async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: true });
   }
 });
 
@@ -186,7 +192,7 @@ router.post("/addViewer/:id", isLoggedIn, async (req, res) => {
         error: "Invalid token."
       });
     }
-    const id = (await verifyAccessToken(token)) as string;
+    const id = (await verifyAccessToken(req)) as string;
 
     if (!req.params.id) {
       return res
@@ -253,6 +259,18 @@ router.post("/addViewer/:id", isLoggedIn, async (req, res) => {
           }
         }
       });
+
+      console.log(JSON.stringify(post))
+
+      await prisma.user.update({
+        where: { id: viewer },
+        data: {
+          sharedposts: {
+            push: JSON.stringify(post)
+          }
+        }
+      });
+
       return res.status(200).json({
         user,
         message: "user added to followers",
@@ -263,11 +281,20 @@ router.post("/addViewer/:id", isLoggedIn, async (req, res) => {
       if (post.viewers.includes(id)) {
         return res
           .status(400)
-          .json({ message: "You have already viewed this post", error: true });
+          .json({ message: "You have already viewer to this post", error: true });
       } else {
         const p = await prisma.post.update({
           where: { id: post.id },
           data: { viewers: { push: isUser.id } }
+        });
+
+        await prisma.user.update({
+          where: { id: viewer },
+          data: {
+            sharedposts: {
+              push: JSON.stringify(post)
+            }
+          }
         });
 
         return res.status(200).json({
@@ -298,7 +325,7 @@ router.post("/addFolder", async (req, res) => {
         error: "Invalid token."
       });
     }
-    const id = (await verifyAccessToken(token)) as string;
+    const id = (await verifyAccessToken(req)) as string;
 
     if (!req.body.name) {
       return res
