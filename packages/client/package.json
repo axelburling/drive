@@ -7,7 +7,7 @@
     "build": "rm -rf dist/ && tsc"
   },
   "dependencies": {
-    "axios": "^0.26.1",
+    "axios": "^1.6.0",
     "cross-fetch": "^3.1.5",
     "form-data": "^4.0.0",
     "got": "^12.0.2",
